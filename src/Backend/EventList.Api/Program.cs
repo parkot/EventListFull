@@ -15,7 +15,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenApi();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -63,12 +68,37 @@ await app.Services.InitializeDatabaseAsync();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "EventList.Api v1");
+    });
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AdminWebClient");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/api", (HttpContext httpContext) =>
+{
+    var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+    return Results.Ok(new
+    {
+        Service = "EventList.Api",
+        Status = "running",
+        Endpoints = new
+        {
+            Health = $"{baseUrl}/api/health",
+            OpenApi = app.Environment.IsDevelopment() ? $"{baseUrl}/openapi/v1.json" : null,
+            SwaggerUi = app.Environment.IsDevelopment() ? $"{baseUrl}/swagger" : null
+        }
+    });
+});
 
 app.MapGet("/api/health", () => Results.Ok(new
 {
@@ -169,6 +199,17 @@ events.MapPost("/", async (ClaimsPrincipal claimsPrincipal, CreateEventRequest r
 
     var result = await eventService.CreateEventAsync(userId, request, cancellationToken);
     return Results.Created($"/api/events/{result.Id}", result);
+});
+
+events.MapPut("/{eventId:guid}", async (ClaimsPrincipal claimsPrincipal, Guid eventId, CreateEventRequest request, IEventService eventService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await eventService.UpdateEventAsync(userId, eventId, request, cancellationToken);
+    return Results.Ok(result);
 });
 
 events.MapGet("/", async (ClaimsPrincipal claimsPrincipal, IEventService eventService, CancellationToken cancellationToken) =>

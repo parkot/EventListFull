@@ -30,19 +30,51 @@ public sealed class EventService(ApplicationDbContext dbContext) : IEventService
         return new EventSummaryDto(entity.Id, entity.Title, entity.OccasionType, entity.ScheduledAtUtc, entity.Venue, EmptyStats());
     }
 
+    public async Task<EventSummaryDto> UpdateEventAsync(Guid ownerUserId, Guid eventId, CreateEventRequest request, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.Events
+            .Include(x => x.Guests)
+            .SingleOrDefaultAsync(x => x.OwnerUserId == ownerUserId && x.Id == eventId, cancellationToken)
+            ?? throw new InvalidOperationException("Event was not found.");
+
+        entity.Title = request.Title.Trim();
+        entity.OccasionType = request.OccasionType.Trim();
+        entity.ScheduledAtUtc = request.ScheduledAtUtc;
+        entity.Venue = request.Venue.Trim();
+        entity.Address = request.Address.Trim();
+        entity.TimeZone = NormalizeTimeZone(request.TimeZone);
+        entity.DefaultLanguage = NormalizeLanguage(request.DefaultLanguage);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new EventSummaryDto(
+            entity.Id,
+            entity.Title,
+            entity.OccasionType,
+            entity.ScheduledAtUtc,
+            entity.Venue,
+            BuildStats(entity.Guests));
+    }
+
     public async Task<IReadOnlyList<EventSummaryDto>> GetEventsAsync(Guid ownerUserId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Events
             .AsNoTracking()
             .Where(x => x.OwnerUserId == ownerUserId)
+            .OrderBy(x => x.ScheduledAtUtc)
             .Select(x => new EventSummaryDto(
                 x.Id,
                 x.Title,
                 x.OccasionType,
                 x.ScheduledAtUtc,
                 x.Venue,
-                BuildStats(x.Guests)))
-            .OrderBy(x => x.ScheduledAtUtc)
+                new EventStatsDto(
+                    x.Guests.Count(),
+                    x.Guests.Count(g => g.RsvpStatus == RsvpStatus.Pending),
+                    x.Guests.Count(g => g.RsvpStatus == RsvpStatus.Attending),
+                    x.Guests.Count(g => g.RsvpStatus == RsvpStatus.Declined),
+                    x.Guests.Count(g => g.RsvpStatus == RsvpStatus.Maybe),
+                    x.Guests.Count(g => g.CheckedInAtUtc != null))))
             .ToListAsync(cancellationToken);
     }
 

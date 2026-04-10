@@ -5,6 +5,7 @@ namespace EventList.Application.Events;
 public interface IEventService
 {
     Task<EventSummaryDto> CreateEventAsync(Guid ownerUserId, CreateEventRequest request, CancellationToken cancellationToken = default);
+    Task<EventSummaryDto> UpdateEventAsync(Guid ownerUserId, Guid eventId, CreateEventRequest request, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<EventSummaryDto>> GetEventsAsync(Guid ownerUserId, CancellationToken cancellationToken = default);
     Task<EventDetailsDto?> GetEventDetailsAsync(Guid ownerUserId, Guid eventId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<GuestInvitationDto>> AddGuestsAsync(Guid ownerUserId, Guid eventId, AddGuestsRequest request, CancellationToken cancellationToken = default);
