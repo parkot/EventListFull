@@ -18,6 +18,9 @@ const en = {
     navigation: 'Navigation',
     dashboard: 'Dashboard',
     events: 'Events',
+    people: 'People',
+    administrators: 'Administrators',
+    users: 'Users',
     authentication: 'Authentication',
     login: 'Login',
     register: 'Register',
@@ -103,7 +106,10 @@ const en = {
     guestsTable: {
       name: 'Name',
       countPerson: 'Count Person',
-      status: 'Status'
+      status: 'Status',
+      url: 'Public URL',
+      copyUrl: 'Copy URL',
+      copied: 'Copied'
     },
     rsvp: {
       accepted: 'Accepted',
@@ -133,6 +139,30 @@ const en = {
       timeZoneRequired: 'Time zone is required',
       defaultLanguageMax: 'Language must be 10 characters or less',
       defaultLanguageRequired: 'Default language is required'
+    }
+  },
+  publicInvitation: {
+    title: 'Invitation',
+    loading: 'Loading invitation...',
+    welcome: 'Hello {{guestName}}',
+    eventTitle: 'Event',
+    occasion: 'Occasion',
+    scheduled: 'Date and time',
+    venue: 'Venue',
+    address: 'Address',
+    currentResponse: 'Current response',
+    answerPrompt: 'Please choose your response',
+    responseSaved: 'Your response has been saved.',
+    actions: {
+      agree: 'Agree',
+      dontKnow: "I don't know",
+      reject: 'Reject'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API at {{baseUrl}}. Start API with: dotnet run --project src/Backend/EventList.Api',
+      invalidInvitation: 'This invitation link is invalid or expired.',
+      loadInvitation: 'Unable to load invitation right now.',
+      submitRsvp: 'Unable to submit your response right now.'
     }
   },
   auth: {

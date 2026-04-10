@@ -1,10 +1,11 @@
 // assets
-import { CalendarOutlined, DashboardOutlined } from '@ant-design/icons';
+import { CalendarOutlined, DashboardOutlined, TeamOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
   CalendarOutlined,
-  DashboardOutlined
+  DashboardOutlined,
+  TeamOutlined
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -31,6 +32,15 @@ const dashboard = {
       type: 'item',
       url: '/events',
       icon: icons.CalendarOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'people',
+      title: 'People',
+      i18nKey: 'menu.people',
+      type: 'item',
+      url: '/people',
+      icon: icons.TeamOutlined,
       breadcrumbs: false
     }
   ]

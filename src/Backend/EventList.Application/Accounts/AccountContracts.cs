@@ -11,6 +11,9 @@ public interface IAccountService
     Task RequestPasswordResetAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default);
     Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default);
     Task<CreateUserResult> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AdminUserDto>> GetUsersAsync(CancellationToken cancellationToken = default);
+    Task<AdminUserDto?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<AdminUserDto> UpdateUserAsync(Guid userId, UpdateUserRequest request, CancellationToken cancellationToken = default);
     Task LogoutCurrentSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default);
     Task LogoutAllSessionsAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<UserProfileDto?> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken = default);
@@ -27,7 +30,7 @@ public interface INotificationSink
     Task SendPasswordResetAsync(User user, string token, CancellationToken cancellationToken = default);
 }
 
-public sealed record RegisterUserRequest(string Email, string Password, string PreferredLanguage);
+public sealed record RegisterUserRequest(string Email, string Password, string PreferredLanguage, string TimeZone = "UTC");
 
 public sealed record LoginRequest(string Email, string Password);
 
@@ -39,11 +42,28 @@ public sealed record ForgotPasswordRequest(string Email);
 
 public sealed record ResetPasswordRequest(string Token, string NewPassword);
 
-public sealed record CreateUserRequest(string Email, string Password, string PreferredLanguage, AccountRole Role);
+public sealed record CreateUserRequest(string Email, string Password, string PreferredLanguage, AccountRole Role, string TimeZone = "UTC");
 
 public sealed record RegistrationResult(Guid UserId, bool RequiresEmailConfirmation);
 
 public sealed record CreateUserResult(Guid UserId, AccountRole Role);
+
+public sealed record UpdateUserRequest(
+    string Email,
+    string PreferredLanguage,
+    string TimeZone,
+    AccountRole Role,
+    bool EmailConfirmed);
+
+public sealed record AdminUserDto(
+    Guid Id,
+    string Email,
+    string PreferredLanguage,
+    string TimeZone,
+    bool EmailConfirmed,
+    AccountRole Role,
+    DateTimeOffset CreatedAtUtc,
+    DateTimeOffset? LastLoginAtUtc);
 
 public sealed record AuthResult(
     UserProfileDto User,
@@ -53,4 +73,4 @@ public sealed record AuthResult(
     DateTimeOffset RefreshTokenExpiresAtUtc,
     Guid SessionId);
 
-public sealed record UserProfileDto(Guid Id, string Email, string PreferredLanguage, bool EmailConfirmed, AccountRole Role);
+public sealed record UserProfileDto(Guid Id, string Email, string PreferredLanguage, string TimeZone, bool EmailConfirmed, AccountRole Role);

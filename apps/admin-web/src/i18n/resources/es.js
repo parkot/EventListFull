@@ -18,6 +18,9 @@ const es = {
     navigation: 'Navegacion',
     dashboard: 'Panel',
     events: 'Eventos',
+    people: 'Personas',
+    administrators: 'Administradores',
+    users: 'Usuarios',
     authentication: 'Autenticacion',
     login: 'Iniciar sesion',
     register: 'Registrarse',
@@ -103,7 +106,10 @@ const es = {
     guestsTable: {
       name: 'Nombre',
       countPerson: 'Cantidad de personas',
-      status: 'Estado'
+      status: 'Estado',
+      url: 'URL publica',
+      copyUrl: 'Copiar URL',
+      copied: 'Copiado'
     },
     rsvp: {
       accepted: 'Aceptado',
@@ -133,6 +139,30 @@ const es = {
       timeZoneRequired: 'La zona horaria es obligatoria',
       defaultLanguageMax: 'El idioma debe tener 10 caracteres o menos',
       defaultLanguageRequired: 'El idioma predeterminado es obligatorio'
+    }
+  },
+  publicInvitation: {
+    title: 'Invitacion',
+    loading: 'Cargando invitacion...',
+    welcome: 'Hola {{guestName}}',
+    eventTitle: 'Evento',
+    occasion: 'Ocasion',
+    scheduled: 'Fecha y hora',
+    venue: 'Lugar',
+    address: 'Direccion',
+    currentResponse: 'Respuesta actual',
+    answerPrompt: 'Por favor elige tu respuesta',
+    responseSaved: 'Tu respuesta ha sido guardada.',
+    actions: {
+      agree: 'Aceptar',
+      dontKnow: 'No se',
+      reject: 'Rechazar'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API backend en {{baseUrl}}. Inicia la API con: dotnet run --project src/Backend/EventList.Api',
+      invalidInvitation: 'Este enlace de invitacion es invalido o ha expirado.',
+      loadInvitation: 'No se puede cargar la invitacion ahora.',
+      submitRsvp: 'No se puede enviar tu respuesta ahora.'
     }
   },
   auth: {

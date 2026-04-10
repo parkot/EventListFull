@@ -31,6 +31,17 @@ function toLocalDateTimeInputValue(date) {
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
 
+function getPublicInvitationUrl(invitationCode) {
+  const baseName = import.meta.env.VITE_APP_BASE_NAME || '';
+  const normalizedBaseName = baseName.endsWith('/') ? baseName.slice(0, -1) : baseName;
+
+  if (typeof window === 'undefined') {
+    return `${normalizedBaseName}/invitations/${encodeURIComponent(invitationCode)}`;
+  }
+
+  return `${window.location.origin}${normalizedBaseName}/invitations/${encodeURIComponent(invitationCode)}`;
+}
+
 function toEventCreatePayload(values) {
   return {
     title: values.title.trim(),
@@ -93,6 +104,7 @@ export default function EventsPage() {
   const [eventGuests, setEventGuests] = useState([]);
   const [isGuestsLoading, setIsGuestsLoading] = useState(false);
   const [guestsLoadError, setGuestsLoadError] = useState('');
+  const [copiedGuestId, setCopiedGuestId] = useState(null);
 
   const defaultTimeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', []);
   const apiUnavailableMessage = useMemo(
@@ -200,6 +212,7 @@ export default function EventsPage() {
     setSelectedEventTitle(eventTitle || t('eventsPage.eventFallback'));
     setEventGuests([]);
     setGuestsLoadError('');
+    setCopiedGuestId(null);
     setIsGuestsLoading(true);
 
     try {
@@ -217,6 +230,17 @@ export default function EventsPage() {
     } finally {
       setIsGuestsLoading(false);
     }
+  };
+
+  const copyGuestInvitationUrl = async (guest) => {
+    const invitationCode = guest?.invitationCode;
+    if (!invitationCode) {
+      return;
+    }
+
+    const invitationUrl = getPublicInvitationUrl(invitationCode);
+    await navigator.clipboard.writeText(invitationUrl);
+    setCopiedGuestId(guest.guestId);
   };
 
   return (
@@ -487,12 +511,13 @@ export default function EventsPage() {
                     <TableCell>{t('eventsPage.guestsTable.name')}</TableCell>
                     <TableCell align="center">{t('eventsPage.guestsTable.countPerson')}</TableCell>
                     <TableCell>{t('eventsPage.guestsTable.status')}</TableCell>
+                    <TableCell>{t('eventsPage.guestsTable.url')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {eventGuests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3}>
+                      <TableCell colSpan={4}>
                         <Typography variant="body2" color="text.secondary">
                             {t('eventsPage.noGuests')}
                         </Typography>
@@ -508,6 +533,18 @@ export default function EventsPage() {
                           <TableCell align="center">1</TableCell>
                           <TableCell>
                             <Chip size="small" label={chip.label} color={chip.color} />
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => copyGuestInvitationUrl(guest)}
+                              disabled={!guest.invitationCode}
+                            >
+                              {copiedGuestId === guest.guestId
+                                ? t('eventsPage.guestsTable.copied')
+                                : t('eventsPage.guestsTable.copyUrl')}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );

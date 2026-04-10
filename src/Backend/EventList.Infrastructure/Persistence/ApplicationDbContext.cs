@@ -1,6 +1,7 @@
 using EventList.Domain.Billing;
 using EventList.Domain.Delivery;
 using EventList.Domain.Events;
+using EventList.Domain.People;
 using EventList.Domain.Templates;
 using EventList.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Guest> Guests => Set<Guest>();
     public DbSet<Invitation> Invitations => Set<Invitation>();
     public DbSet<InvitationTemplate> InvitationTemplates => Set<InvitationTemplate>();
+    public DbSet<Person> People => Set<Person>();
     public DbSet<UserEntitlement> UserEntitlements => Set<UserEntitlement>();
     public DbSet<User> Users => Set<User>();
     public DbSet<VerificationToken> VerificationTokens => Set<VerificationToken>();
@@ -115,6 +117,24 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+            modelBuilder.Entity<Person>(entity =>
+            {
+                entity.ToTable("People");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.FullName).HasMaxLength(200).IsRequired();
+                entity.Property(x => x.Email).HasMaxLength(320).IsRequired();
+                entity.Property(x => x.PhoneNumber).HasMaxLength(32).IsRequired();
+                entity.Property(x => x.Availability).HasMaxLength(500).IsRequired();
+                entity.Property(x => x.IsArchived).HasDefaultValue(false);
+                entity.HasIndex(x => new { x.OwnerUserId, x.Email })
+                    .IsUnique()
+                    .HasFilter("[IsArchived] = 0");
+                entity.HasOne(x => x.OwnerUser)
+                .WithMany()
+                .HasForeignKey(x => x.OwnerUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+
         modelBuilder.Entity<Guest>(entity =>
         {
             entity.ToTable("Guests");
@@ -159,6 +179,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.Email).HasMaxLength(320).IsRequired();
             entity.Property(x => x.PasswordHash).IsRequired();
             entity.Property(x => x.PreferredLanguage).HasMaxLength(16).IsRequired();
+            entity.Property(x => x.TimeZone).HasMaxLength(100).IsRequired();
             entity.Property(x => x.Role).HasConversion<string>().HasMaxLength(32).IsRequired();
             entity.HasIndex(x => x.Email).IsUnique();
         });

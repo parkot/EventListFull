@@ -39,6 +39,7 @@ public sealed class AccountService(
         {
             Email = email,
             PreferredLanguage = NormalizeLanguage(request.PreferredLanguage),
+            TimeZone = NormalizeTimeZone(request.TimeZone),
             Role = AccountRole.FreeUser,
             EmailConfirmed = false
         };
@@ -165,6 +166,7 @@ public sealed class AccountService(
         {
             Email = email,
             PreferredLanguage = NormalizeLanguage(request.PreferredLanguage),
+            TimeZone = NormalizeTimeZone(request.TimeZone),
             Role = request.Role,
             EmailConfirmed = true
         };
@@ -175,6 +177,55 @@ public sealed class AccountService(
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return new CreateUserResult(user.Id, user.Role);
+    }
+
+    public async Task<IReadOnlyList<AdminUserDto>> GetUsersAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Users
+            .AsNoTracking()
+            .OrderBy(x => x.Email)
+            .Select(MapAdminUserDtoExpression())
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<AdminUserDto?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Users
+            .AsNoTracking()
+            .Where(x => x.Id == userId)
+            .Select(MapAdminUserDtoExpression())
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<AdminUserDto> UpdateUserAsync(Guid userId, UpdateUserRequest request, CancellationToken cancellationToken = default)
+    {
+        var email = NormalizeEmail(request.Email);
+        var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId, cancellationToken)
+            ?? throw new InvalidOperationException("User was not found.");
+
+        var emailInUse = await _dbContext.Users.AnyAsync(x => x.Id != userId && x.Email == email, cancellationToken);
+        if (emailInUse)
+        {
+            throw new InvalidOperationException("Email address is already registered.");
+        }
+
+        user.Email = email;
+        user.PreferredLanguage = NormalizeLanguage(request.PreferredLanguage);
+        user.TimeZone = NormalizeTimeZone(request.TimeZone);
+        user.Role = request.Role;
+        user.EmailConfirmed = request.EmailConfirmed;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new AdminUserDto(
+            user.Id,
+            user.Email,
+            user.PreferredLanguage,
+            user.TimeZone,
+            user.EmailConfirmed,
+            user.Role,
+            user.CreatedAtUtc,
+            user.LastLoginAtUtc);
     }
 
     public async Task LogoutCurrentSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default)
@@ -217,7 +268,7 @@ public sealed class AccountService(
     {
         return await _dbContext.Users
             .Where(x => x.Id == userId)
-            .Select(x => new UserProfileDto(x.Id, x.Email, x.PreferredLanguage, x.EmailConfirmed, x.Role))
+            .Select(x => new UserProfileDto(x.Id, x.Email, x.PreferredLanguage, x.TimeZone, x.EmailConfirmed, x.Role))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
@@ -239,6 +290,7 @@ public sealed class AccountService(
         {
             Email = email,
             PreferredLanguage = NormalizeLanguage(_bootstrapAdminOptions.PreferredLanguage),
+            TimeZone = NormalizeTimeZone(_bootstrapAdminOptions.TimeZone),
             Role = AccountRole.Administrator,
             EmailConfirmed = true
         };
@@ -280,6 +332,10 @@ public sealed class AccountService(
         ? "en"
         : preferredLanguage.Trim().ToLowerInvariant();
 
+    private static string NormalizeTimeZone(string timeZone) => string.IsNullOrWhiteSpace(timeZone)
+        ? "UTC"
+        : timeZone.Trim();
+
     private static (string RawToken, VerificationToken StoredToken) CreateToken(User user, VerificationTokenType type, TimeSpan lifetime)
     {
         var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
@@ -314,6 +370,19 @@ public sealed class AccountService(
     {
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
+
+    private static System.Linq.Expressions.Expression<Func<User, AdminUserDto>> MapAdminUserDtoExpression()
+    {
+        return user => new AdminUserDto(
+            user.Id,
+            user.Email,
+            user.PreferredLanguage,
+            user.TimeZone,
+            user.EmailConfirmed,
+            user.Role,
+            user.CreatedAtUtc,
+            user.LastLoginAtUtc);
+    }
 }
 
 internal sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
@@ -341,7 +410,7 @@ internal sealed class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenS
             signingCredentials: credentials);
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-        var userProfile = new UserProfileDto(user.Id, user.Email, user.PreferredLanguage, user.EmailConfirmed, user.Role);
+        var userProfile = new UserProfileDto(user.Id, user.Email, user.PreferredLanguage, user.TimeZone, user.EmailConfirmed, user.Role);
 
         return new AuthResult(userProfile, token, expiresAtUtc, refreshToken, refreshTokenExpiresAtUtc, sessionId);
     }
@@ -380,4 +449,5 @@ public sealed class BootstrapAdminOptions
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string PreferredLanguage { get; set; } = "en";
+    public string TimeZone { get; set; } = "UTC";
 }

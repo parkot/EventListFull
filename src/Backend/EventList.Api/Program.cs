@@ -5,6 +5,7 @@ using EventList.Application.Accounts;
 using EventList.Application.Billing;
 using EventList.Application.Delivery;
 using EventList.Application.Events;
+using EventList.Application.People;
 using EventList.Application.Templates;
 using EventList.Infrastructure;
 using EventList.Infrastructure.Accounts;
@@ -182,11 +183,32 @@ app.MapGet("/api/users/me", async (ClaimsPrincipal claimsPrincipal, IAccountServ
     return user is null ? Results.NotFound() : Results.Ok(user);
 }).RequireAuthorization();
 
-app.MapPost("/api/admin/users", async (CreateUserRequest request, IAccountService accountService, CancellationToken cancellationToken) =>
+var adminUsers = app.MapGroup("/api/admin/users")
+    .RequireAuthorization(policy => policy.RequireRole("Administrator"));
+
+adminUsers.MapGet("/", async (IAccountService accountService, CancellationToken cancellationToken) =>
+{
+    var result = await accountService.GetUsersAsync(cancellationToken);
+    return Results.Ok(result);
+});
+
+adminUsers.MapGet("/{userId:guid}", async (Guid userId, IAccountService accountService, CancellationToken cancellationToken) =>
+{
+    var result = await accountService.GetUserAsync(userId, cancellationToken);
+    return result is null ? Results.NotFound() : Results.Ok(result);
+});
+
+adminUsers.MapPost("/", async (CreateUserRequest request, IAccountService accountService, CancellationToken cancellationToken) =>
 {
     var result = await accountService.CreateUserAsync(request, cancellationToken);
     return Results.Created($"/api/users/{result.UserId}", result);
-}).RequireAuthorization(policy => policy.RequireRole("Administrator"));
+});
+
+adminUsers.MapPut("/{userId:guid}", async (Guid userId, UpdateUserRequest request, IAccountService accountService, CancellationToken cancellationToken) =>
+{
+    var result = await accountService.UpdateUserAsync(userId, request, cancellationToken);
+    return Results.Ok(result);
+});
 
 var events = app.MapGroup("/api/events").RequireAuthorization();
 
@@ -299,6 +321,81 @@ app.MapPost("/api/check-in/{scanCode}", async (string scanCode, IEventService ev
 });
 
 var templates = app.MapGroup("/api/templates").RequireAuthorization();
+
+var people = app.MapGroup("/api/people").RequireAuthorization();
+
+people.MapGet("/", async (ClaimsPrincipal claimsPrincipal, IPersonService personService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await personService.GetPeopleAsync(userId, cancellationToken);
+    return Results.Ok(result);
+});
+
+people.MapGet("/archived", async (ClaimsPrincipal claimsPrincipal, IPersonService personService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await personService.GetArchivedPeopleAsync(userId, cancellationToken);
+    return Results.Ok(result);
+});
+
+people.MapPost("/", async (ClaimsPrincipal claimsPrincipal, CreateOrUpdatePersonRequest request, IPersonService personService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await personService.CreatePersonAsync(userId, request, cancellationToken);
+    return Results.Created($"/api/people/{result.Id}", result);
+});
+
+people.MapPut("/{personId:guid}", async (ClaimsPrincipal claimsPrincipal, Guid personId, CreateOrUpdatePersonRequest request, IPersonService personService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await personService.UpdatePersonAsync(userId, personId, request, cancellationToken);
+    return Results.Ok(result);
+});
+
+people.MapDelete("/{personId:guid}", async (ClaimsPrincipal claimsPrincipal, Guid personId, IPersonService personService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    await personService.DeletePersonAsync(userId, personId, cancellationToken);
+    return Results.NoContent();
+});
+
+people.MapPost("/{personId:guid}/restore", async (ClaimsPrincipal claimsPrincipal, Guid personId, IPersonService personService, CancellationToken cancellationToken) =>
+{
+    if (!TryGetUserId(claimsPrincipal, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        await personService.RestorePersonAsync(userId, personId, cancellationToken);
+        return Results.NoContent();
+    }
+    catch (InvalidOperationException exception)
+    {
+        return Results.BadRequest(new { Message = exception.Message });
+    }
+});
 
 templates.MapPost("/", async (ClaimsPrincipal claimsPrincipal, CreateTemplateRequest request, ITemplateService templateService, CancellationToken cancellationToken) =>
 {

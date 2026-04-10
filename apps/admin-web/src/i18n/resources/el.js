@@ -18,6 +18,9 @@ const el = {
     navigation: 'Πλοήγηση',
     dashboard: 'Πίνακας',
     events: 'Εκδηλώσεις',
+    people: 'Άτομα',
+    administrators: 'Διαχειριστές',
+    users: 'Χρήστες',
     authentication: 'Αυθεντικοποίηση',
     login: 'Σύνδεση',
     register: 'Εγγραφή',
@@ -103,7 +106,10 @@ const el = {
     guestsTable: {
       name: 'Όνομα',
       countPerson: 'Αριθμός ατόμων',
-      status: 'Κατάσταση'
+      status: 'Κατάσταση',
+      url: 'Δημόσιο URL',
+      copyUrl: 'Αντιγραφή URL',
+      copied: 'Αντιγράφηκε'
     },
     rsvp: {
       accepted: 'Αποδοχή',
@@ -134,6 +140,31 @@ const el = {
       timeZoneRequired: 'Η ζώνη ώρας είναι υποχρεωτική',
       defaultLanguageMax: 'Η γλώσσα πρέπει να έχει έως 10 χαρακτήρες',
       defaultLanguageRequired: 'Η προεπιλεγμένη γλώσσα είναι υποχρεωτική'
+    }
+  },
+  publicInvitation: {
+    title: 'Πρόσκληση',
+    loading: 'Φόρτωση πρόσκλησης...',
+    welcome: 'Γεια σου {{guestName}}',
+    eventTitle: 'Εκδήλωση',
+    occasion: 'Περίσταση',
+    scheduled: 'Ημερομηνία και ώρα',
+    venue: 'Χώρος',
+    address: 'Διεύθυνση',
+    currentResponse: 'Τρέχουσα απάντηση',
+    answerPrompt: 'Παρακαλώ επίλεξε την απάντησή σου',
+    responseSaved: 'Η απάντησή σου αποθηκεύτηκε.',
+    actions: {
+      agree: 'Συμφωνώ',
+      dontKnow: 'Δεν ξέρω',
+      reject: 'Απόρριψη'
+    },
+    errors: {
+      backendUnavailable:
+        'Αδυναμία πρόσβασης στο backend API στο {{baseUrl}}. Ξεκινήστε το API με: dotnet run --project src/Backend/EventList.Api',
+      invalidInvitation: 'Αυτός ο σύνδεσμος πρόσκλησης δεν είναι έγκυρος ή έχει λήξει.',
+      loadInvitation: 'Αδυναμία φόρτωσης της πρόσκλησης αυτή τη στιγμή.',
+      submitRsvp: 'Αδυναμία αποστολής της απάντησής σου αυτή τη στιγμή.'
     }
   },
   auth: {

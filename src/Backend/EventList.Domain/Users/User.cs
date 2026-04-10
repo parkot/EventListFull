@@ -6,6 +6,7 @@ public sealed class User
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string PreferredLanguage { get; set; } = "en";
+    public string TimeZone { get; set; } = "UTC";
     public bool EmailConfirmed { get; set; }
     public AccountRole Role { get; set; } = AccountRole.FreeUser;
     public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;

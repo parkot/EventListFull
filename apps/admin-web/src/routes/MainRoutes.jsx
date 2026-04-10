@@ -4,6 +4,7 @@ import { lazy } from 'react';
 import Loadable from 'components/Loadable';
 import DashboardLayout from 'layout/Dashboard';
 import RequireAuth from './RequireAuth';
+import RequireRole from './RequireRole';
 
 // render- Dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')));
@@ -16,6 +17,8 @@ const Shadow = Loadable(lazy(() => import('pages/component-overview/shadows')));
 // render - sample page
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')));
 const EventsPage = Loadable(lazy(() => import('pages/events')));
+const PeoplePage = Loadable(lazy(() => import('pages/people')));
+const UsersPage = Loadable(lazy(() => import('pages/users')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -59,6 +62,18 @@ const MainRoutes = {
     {
       path: 'events',
       element: <EventsPage />
+    },
+    {
+      path: 'people',
+      element: <PeoplePage />
+    },
+    {
+      path: 'admin/users',
+      element: (
+        <RequireRole roles={['Administrator']}>
+          <UsersPage />
+        </RequireRole>
+      )
     }
   ]
 };
