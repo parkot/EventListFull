@@ -1,0 +1,1 @@
+export { default } from "file:///E:/Data/Repos/EventListFull/apps/promo-vue/node_modules/@nuxt/vite-builder/dist/vite-node-runner.mjs"
