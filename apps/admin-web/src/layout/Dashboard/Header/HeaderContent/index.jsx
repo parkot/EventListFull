@@ -9,6 +9,9 @@ import Search from './Search';
 import Profile from './Profile';
 import Notification from './Notification';
 import MobileSection from './MobileSection';
+import LanguageSwitcher from './LanguageSwitcher';
+
+import { useTranslation } from 'react-i18next';
 
 // project import
 import { GithubOutlined } from '@ant-design/icons';
@@ -17,18 +20,20 @@ import { GithubOutlined } from '@ant-design/icons';
 
 export default function HeaderContent() {
   const downLG = useMediaQuery((theme) => theme.breakpoints.down('lg'));
+  const { t } = useTranslation();
 
   return (
     <>
       {!downLG && <Search />}
       {downLG && <Box sx={{ width: '100%', ml: 1 }} />}
+      {!downLG && <LanguageSwitcher />}
       <IconButton
         component={Link}
         href="https://github.com/codedthemes/mantis-free-react-admin-template"
         target="_blank"
         disableRipple
         color="secondary"
-        title="Download Free Version"
+        title={t('header.downloadFreeVersion')}
         sx={{ color: 'text.primary', bgcolor: 'grey.100' }}
       >
         <GithubOutlined />

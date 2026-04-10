@@ -7,12 +7,14 @@ import Box from '@mui/material/Box';
 // project import
 import NavItem from './NavItem';
 import { useGetMenuMaster } from 'api/menu';
+import { useTranslation } from 'react-i18next';
 
 // ==============================|| NAVIGATION - LIST GROUP ||============================== //
 
 export default function NavGroup({ item }) {
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
+  const { t } = useTranslation();
 
   const navCollapse = item.children?.map((menuItem) => {
     switch (menuItem.type) {
@@ -40,7 +42,7 @@ export default function NavGroup({ item }) {
         drawerOpen && (
           <Box sx={{ pl: 3, mb: 1.5 }}>
             <Typography variant="subtitle2" color="textSecondary">
-              {item.title}
+              {item.i18nKey ? t(item.i18nKey, { defaultValue: item.title }) : item.title}
             </Typography>
             {/* only available in paid version */}
           </Box>

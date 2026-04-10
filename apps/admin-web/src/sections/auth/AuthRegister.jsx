@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 // material-ui
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Grid from '@mui/material/Grid';
@@ -11,8 +13,10 @@ import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Autocomplete from '@mui/material/Autocomplete';
 
 // third-party
 import * as Yup from 'yup';
@@ -30,9 +34,82 @@ import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 
 // ============================|| JWT - REGISTER ||============================ //
 
+const defaultCountryOptions = [
+  {
+    isoCode: 'US',
+    name: 'United States',
+    dialCode: '+1',
+    flagAlt: 'United States flag',
+    flagSrc: 'https://flagcdn.com/w40/us.png',
+    fallbackFlagSrc: 'https://restcountries.com/data/usa.svg'
+  }
+];
+
+const handleFlagImageError = (event) => {
+  const fallbackFlagSrc = event.currentTarget.dataset.fallbackSrc;
+
+  if (fallbackFlagSrc && event.currentTarget.src !== fallbackFlagSrc) {
+    event.currentTarget.src = fallbackFlagSrc;
+    return;
+  }
+
+  event.currentTarget.style.visibility = 'hidden';
+};
+
+const countryFilterOptions = (options, state) => {
+  const query = state.inputValue.trim().toLowerCase();
+
+  if (!query) {
+    return options;
+  }
+
+  return options.filter((option) => {
+    const searchableText = `${option.name} ${option.isoCode} ${option.dialCode}`.toLowerCase();
+    return searchableText.includes(query);
+  });
+};
+
+const mapCountryOption = (country) => {
+  const dialRoot = country.idd?.root;
+  const dialSuffixes = country.idd?.suffixes;
+  const isoCode = country.cca2;
+
+  if (!dialRoot || !Array.isArray(dialSuffixes) || dialSuffixes.length === 0) {
+    return null;
+  }
+
+  return {
+    isoCode,
+    name: country.name?.common ?? isoCode,
+    dialCode: `${dialRoot}${dialSuffixes[0]}`,
+    flagAlt: `${country.name?.common ?? isoCode} flag`,
+    flagSrc: `https://flagcdn.com/w40/${isoCode.toLowerCase()}.png`,
+    fallbackFlagSrc: country.flags?.png ?? country.flags?.svg ?? ''
+  };
+};
+
 export default function AuthRegister() {
+  const { t } = useTranslation();
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
+  const [countryOptions, setCountryOptions] = useState(defaultCountryOptions);
+  const [isCountriesLoading, setIsCountriesLoading] = useState(false);
+  const [countrySearchText, setCountrySearchText] = useState('+1');
+  const [isCountrySelectorOpen, setIsCountrySelectorOpen] = useState(false);
+
+  const validationSchema = useMemo(
+    () =>
+      Yup.object().shape({
+        firstname: Yup.string().max(255).required(t('auth.validation.firstNameRequired')),
+        lastname: Yup.string().max(255).required(t('auth.validation.lastNameRequired')),
+        email: Yup.string().email(t('auth.validation.mustBeValidEmail')).max(255).required(t('auth.validation.emailRequired')),
+        password: Yup.string()
+          .required(t('auth.validation.passwordRequired'))
+          .test('no-leading-trailing-whitespace', t('auth.validation.passwordNoSpaces'), (value) => value === value?.trim())
+          .max(10, t('auth.validation.passwordTooLongRegister'))
+      }),
+    [t]
+  );
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -50,6 +127,47 @@ export default function AuthRegister() {
     changePassword('');
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCountries = async () => {
+      setIsCountriesLoading(true);
+
+      try {
+        const response = await fetch('https://restcountries.com/v3.1/all?fields=cca2,name,idd,flags');
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json();
+        if (!Array.isArray(payload)) {
+          return;
+        }
+
+        const options = payload
+          .map(mapCountryOption)
+          .filter(Boolean)
+          .sort((left, right) => left.name.localeCompare(right.name));
+
+        if (isMounted && options.length > 0) {
+          setCountryOptions(options);
+        }
+      } catch {
+        // Keep fallback options when external country metadata fails to load.
+      } finally {
+        if (isMounted) {
+          setIsCountriesLoading(false);
+        }
+      }
+    };
+
+    loadCountries();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <>
       <Formik
@@ -57,26 +175,24 @@ export default function AuthRegister() {
           firstname: '',
           lastname: '',
           email: '',
-          company: '',
+          countryIsoCode: 'US',
+          countryCode: '+1',
+          phoneNumber: '',
           password: '',
           submit: null
         }}
-        validationSchema={Yup.object().shape({
-          firstname: Yup.string().max(255).required('First Name is required'),
-          lastname: Yup.string().max(255).required('Last Name is required'),
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string()
-            .required('Password is required')
-            .test('no-leading-trailing-whitespace', 'Password cannot start or end with spaces', (value) => value === value.trim())
-            .max(10, 'Password must be less than 10 characters')
-        })}
+        validationSchema={validationSchema}
       >
-        {({ errors, handleBlur, handleChange, touched, values }) => (
+        {({ errors, handleBlur, handleChange, touched, values, setFieldValue }) => (
+          (() => {
+            const selectedCountry = countryOptions.find((option) => option.isoCode === values.countryIsoCode) ?? null;
+
+            return (
           <form noValidate>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="firstname-signup">First Name*</InputLabel>
+                  <InputLabel htmlFor="firstname-signup">{t('auth.register.firstNameLabel')}</InputLabel>
                   <OutlinedInput
                     id="firstname-login"
                     type="firstname"
@@ -84,7 +200,7 @@ export default function AuthRegister() {
                     name="firstname"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="John"
+                    placeholder={t('auth.register.firstNamePlaceholder')}
                     fullWidth
                     error={Boolean(touched.firstname && errors.firstname)}
                   />
@@ -97,7 +213,7 @@ export default function AuthRegister() {
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="lastname-signup">Last Name*</InputLabel>
+                  <InputLabel htmlFor="lastname-signup">{t('auth.register.lastNameLabel')}</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.lastname && errors.lastname)}
@@ -107,7 +223,7 @@ export default function AuthRegister() {
                     name="lastname"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Doe"
+                    placeholder={t('auth.register.lastNamePlaceholder')}
                   />
                 </Stack>
                 {touched.lastname && errors.lastname && (
@@ -118,27 +234,112 @@ export default function AuthRegister() {
               </Grid>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="company-signup">Company</InputLabel>
-                  <OutlinedInput
-                    fullWidth
-                    error={Boolean(touched.company && errors.company)}
-                    id="company-signup"
-                    value={values.company}
-                    name="company"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Demo Inc."
-                  />
+                  <InputLabel htmlFor="phone-number-signup">{t('auth.register.phoneLabel')}</InputLabel>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <Autocomplete
+                        id="country-code-signup"
+                        options={countryOptions}
+                        loading={isCountriesLoading}
+                        filterOptions={countryFilterOptions}
+                        fullWidth
+                        autoHighlight
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            padding: '3px'
+                          }
+                        }}
+                        open={isCountrySelectorOpen}
+                        onOpen={() => {
+                          setIsCountrySelectorOpen(true);
+                          setCountrySearchText('');
+                        }}
+                        onClose={() => {
+                          setIsCountrySelectorOpen(false);
+                        }}
+                        value={selectedCountry}
+                        inputValue={isCountrySelectorOpen ? countrySearchText : selectedCountry?.dialCode ?? ''}
+                        onInputChange={(_, newInputValue, reason) => {
+                          if (reason === 'input') {
+                            setCountrySearchText(newInputValue);
+                          }
+
+                          if (reason === 'clear') {
+                            setCountrySearchText('');
+                          }
+                        }}
+                        isOptionEqualToValue={(option, value) => option.isoCode === value.isoCode}
+                        onChange={(_, selectedOption) => {
+                          setFieldValue('countryIsoCode', selectedOption?.isoCode ?? '');
+                          setFieldValue('countryCode', selectedOption?.dialCode ?? '');
+                          setCountrySearchText('');
+                          setIsCountrySelectorOpen(false);
+                        }}
+                        getOptionLabel={(option) => `${option.name} (${option.dialCode})`}
+                        slotProps={{
+                          popper: {
+                            sx: {
+                              width: '360px !important'
+                            }
+                          },
+                          paper: {
+                            sx: {
+                              minWidth: 360
+                            }
+                          }
+                        }}
+                        renderOption={(props, option) => (
+                          <li {...props}>
+                            <Box
+                              component="img"
+                              loading="lazy"
+                              width={20}
+                              src={option.flagSrc}
+                              data-fallback-src={option.fallbackFlagSrc}
+                              alt={option.flagAlt}
+                              onError={handleFlagImageError}
+                              sx={{ mr: 1.5, flexShrink: 0, borderRadius: 0.5 }}
+                            />
+                            {`${option.name} (${option.dialCode})`}
+                          </li>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            fullWidth
+                            placeholder={t('auth.register.countryCodePlaceholder')}
+                            onBlur={handleBlur}
+                            name="countryCode"
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {isCountriesLoading ? <CircularProgress color="inherit" size={16} /> : null}
+                                  {params.InputProps.endAdornment}
+                                </>
+                              )
+                            }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 8 }}>
+                      <OutlinedInput
+                        fullWidth
+                        id="phone-number-signup"
+                        value={values.phoneNumber}
+                        name="phoneNumber"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        placeholder={t('auth.register.phonePlaceholder')}
+                      />
+                    </Grid>
+                  </Grid>
                 </Stack>
-                {touched.company && errors.company && (
-                  <FormHelperText error id="helper-text-company-signup">
-                    {errors.company}
-                  </FormHelperText>
-                )}
               </Grid>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="email-signup">Email Address*</InputLabel>
+                  <InputLabel htmlFor="email-signup">{t('auth.register.emailLabel')}</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.email && errors.email)}
@@ -148,7 +349,7 @@ export default function AuthRegister() {
                     name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="demo@company.com"
+                    placeholder={t('auth.register.emailPlaceholder')}
                   />
                 </Stack>
                 {touched.email && errors.email && (
@@ -159,7 +360,7 @@ export default function AuthRegister() {
               </Grid>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="password-signup">Password</InputLabel>
+                  <InputLabel htmlFor="password-signup">{t('auth.register.passwordLabel')}</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.password && errors.password)}
@@ -208,13 +409,13 @@ export default function AuthRegister() {
               </Grid>
               <Grid size={12}>
                 <Typography variant="body2">
-                  By Signing up, you agree to our &nbsp;
+                  {t('auth.register.agreeText')}&nbsp;
                   <Link variant="subtitle2" component={RouterLink} to="#">
-                    Terms of Service
+                    {t('auth.register.termsOfService')}
                   </Link>
-                  &nbsp; and &nbsp;
+                  &nbsp;{t('common.and')}&nbsp;
                   <Link variant="subtitle2" component={RouterLink} to="#">
-                    Privacy Policy
+                    {t('auth.register.privacyPolicy')}
                   </Link>
                 </Typography>
               </Grid>
@@ -226,12 +427,14 @@ export default function AuthRegister() {
               <Grid size={12}>
                 <AnimateButton>
                   <Button fullWidth size="large" variant="contained" color="primary">
-                    Create Account
+                    {t('auth.register.button')}
                   </Button>
                 </AnimateButton>
               </Grid>
             </Grid>
           </form>
+            );
+          })()
         )}
       </Formik>
     </>

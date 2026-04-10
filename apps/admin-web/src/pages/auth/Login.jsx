@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 // material-ui
 import Grid from '@mui/material/Grid';
@@ -16,6 +17,7 @@ import { isAuthenticated } from 'utils/auth';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -28,9 +30,9 @@ export default function Login() {
       <Grid container spacing={3}>
         <Grid size={12}>
           <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between', mb: { xs: -0.5, sm: 0.5 } }}>
-            <Typography variant="h3">Login</Typography>
+            <Typography variant="h3">{t('auth.login.title')}</Typography>
             <Typography component={Link} to={'/register'} variant="body1" sx={{ textDecoration: 'none' }} color="primary">
-              Don&apos;t have an account?
+              {t('auth.login.noAccount')}
             </Typography>
           </Stack>
         </Grid>

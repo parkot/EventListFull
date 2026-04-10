@@ -17,6 +17,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
+import { useTranslation } from 'react-i18next';
+
 // project imports
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
@@ -58,6 +60,7 @@ const actionSX = {
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
 export default function DashboardDefault() {
+  const { t } = useTranslation();
   const [orderMenuAnchor, setOrderMenuAnchor] = useState(null);
   const [analyticsMenuAnchor, setAnalyticsMenuAnchor] = useState(null);
   const [apiHealth, setApiHealth] = useState({
@@ -67,8 +70,8 @@ export default function DashboardDefault() {
   });
   const [currentUser, setCurrentUser] = useState({
     loading: true,
-    label: 'Loading...',
-    hint: 'Signed-in account'
+    label: '',
+    hint: ''
   });
 
   useEffect(() => {
@@ -117,16 +120,16 @@ export default function DashboardDefault() {
         if (isMounted) {
           setCurrentUser({
             loading: false,
-            label: data?.email || 'Signed in',
-            hint: data?.role || 'User'
+            label: data?.email || t('dashboard.signedIn'),
+            hint: data?.role || t('dashboard.userRole')
           });
         }
       } catch {
         if (isMounted) {
           setCurrentUser({
             loading: false,
-            label: 'Session invalid',
-            hint: 'Please login again'
+            label: t('dashboard.sessionInvalid'),
+            hint: t('dashboard.loginAgain')
           });
         }
       }
@@ -137,7 +140,7 @@ export default function DashboardDefault() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   const handleOrderMenuClick = (event) => {
     setOrderMenuAnchor(event.currentTarget);
@@ -157,12 +160,12 @@ export default function DashboardDefault() {
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
       <Grid sx={{ mb: -2.25 }} size={12}>
-        <Typography variant="h5">Dashboard</Typography>
+        <Typography variant="h5">{t('dashboard.title')}</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
         <AnalyticEcommerce
-          title="API Health"
-          count={apiHealth.loading ? 'Checking...' : apiHealth.status.toUpperCase()}
+          title={t('dashboard.apiHealth')}
+          count={apiHealth.loading ? t('dashboard.checking') : apiHealth.status.toUpperCase()}
           percentage={apiHealth.status === 'ok' ? 100 : 0}
           isLoss={apiHealth.status !== 'ok'}
           color={apiHealth.status === 'ok' ? 'success' : 'error'}
@@ -171,17 +174,17 @@ export default function DashboardDefault() {
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
         <AnalyticEcommerce
-          title="Current User"
-          count={currentUser.loading ? 'Loading...' : currentUser.label}
+          title={t('dashboard.currentUser')}
+          count={currentUser.loading ? t('common.loading') : currentUser.label}
           percentage={100}
-          extra={currentUser.hint}
+          extra={currentUser.hint || t('dashboard.signedInAccount')}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Total Order" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
+        <AnalyticEcommerce title={t('dashboard.totalOrder')} count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Total Sales" count="35,078" percentage={27.4} isLoss color="warning" extra="20,395" />
+        <AnalyticEcommerce title={t('dashboard.totalSales')} count="35,078" percentage={27.4} isLoss color="warning" extra="20,395" />
       </Grid>
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
       {/* row 2 */}
@@ -191,7 +194,7 @@ export default function DashboardDefault() {
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
         <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Grid>
-            <Typography variant="h5">Income Overview</Typography>
+            <Typography variant="h5">{t('dashboard.incomeOverview')}</Typography>
           </Grid>
           <Grid />
         </Grid>
@@ -199,7 +202,7 @@ export default function DashboardDefault() {
           <Box sx={{ p: 3, pb: 0 }}>
             <Stack sx={{ gap: 2 }}>
               <Typography variant="h6" color="text.secondary">
-                This Week Statistics
+                {t('dashboard.thisWeekStatistics')}
               </Typography>
               <Typography variant="h3">$7,650</Typography>
             </Stack>
@@ -211,7 +214,7 @@ export default function DashboardDefault() {
       <Grid size={{ xs: 12, md: 7, lg: 8 }}>
         <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Grid>
-            <Typography variant="h5">Recent Orders</Typography>
+            <Typography variant="h5">{t('dashboard.recentOrders')}</Typography>
           </Grid>
           <Grid>
             <IconButton onClick={handleOrderMenuClick}>
@@ -226,9 +229,9 @@ export default function DashboardDefault() {
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <MenuItem onClick={handleOrderMenuClose}>Export as CSV</MenuItem>
-              <MenuItem onClick={handleOrderMenuClose}>Export as Excel</MenuItem>
-              <MenuItem onClick={handleOrderMenuClose}>Print Table</MenuItem>
+              <MenuItem onClick={handleOrderMenuClose}>{t('dashboard.exportCsv')}</MenuItem>
+              <MenuItem onClick={handleOrderMenuClose}>{t('dashboard.exportExcel')}</MenuItem>
+              <MenuItem onClick={handleOrderMenuClose}>{t('dashboard.printTable')}</MenuItem>
             </Menu>
           </Grid>
         </Grid>
@@ -239,7 +242,7 @@ export default function DashboardDefault() {
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
         <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Grid>
-            <Typography variant="h5">Analytics Report</Typography>
+            <Typography variant="h5">{t('dashboard.analyticsReport')}</Typography>
           </Grid>
           <Grid>
             <IconButton onClick={handleAnalyticsMenuClick}>
@@ -254,25 +257,25 @@ export default function DashboardDefault() {
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <MenuItem onClick={handleAnalyticsMenuClose}>Weekly</MenuItem>
-              <MenuItem onClick={handleAnalyticsMenuClose}>Monthly</MenuItem>
-              <MenuItem onClick={handleAnalyticsMenuClose}>Yearly</MenuItem>
+              <MenuItem onClick={handleAnalyticsMenuClose}>{t('dashboard.weekly')}</MenuItem>
+              <MenuItem onClick={handleAnalyticsMenuClose}>{t('dashboard.monthly')}</MenuItem>
+              <MenuItem onClick={handleAnalyticsMenuClose}>{t('dashboard.yearly')}</MenuItem>
             </Menu>
           </Grid>
         </Grid>
         <MainCard sx={{ mt: 2 }} content={false}>
           <List sx={{ p: 0, '& .MuiListItemButton-root': { py: 2 } }}>
             <ListItemButton divider>
-              <ListItemText primary="Company Finance Growth" />
+              <ListItemText primary={t('dashboard.financeGrowth')} />
               <Typography variant="h5">+45.14%</Typography>
             </ListItemButton>
             <ListItemButton divider>
-              <ListItemText primary="Company Expenses Ratio" />
+              <ListItemText primary={t('dashboard.expensesRatio')} />
               <Typography variant="h5">0.58%</Typography>
             </ListItemButton>
             <ListItemButton>
-              <ListItemText primary="Business Risk Cases" />
-              <Typography variant="h5">Low</Typography>
+              <ListItemText primary={t('dashboard.businessRiskCases')} />
+              <Typography variant="h5">{t('dashboard.low')}</Typography>
             </ListItemButton>
           </List>
           <ReportAreaChart />
@@ -285,7 +288,7 @@ export default function DashboardDefault() {
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
         <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Grid>
-            <Typography variant="h5">Transaction History</Typography>
+            <Typography variant="h5">{t('dashboard.transactionHistory')}</Typography>
           </Grid>
           <Grid />
         </Grid>
@@ -373,10 +376,10 @@ export default function DashboardDefault() {
               <Grid>
                 <Stack>
                   <Typography variant="h5" noWrap>
-                    Help & Support Chat
+                    {t('dashboard.helpSupportChat')}
                   </Typography>
                   <Typography variant="caption" color="secondary" noWrap>
-                    Typical replay within 5 min
+                    {t('dashboard.typicalReply')}
                   </Typography>
                 </Stack>
               </Grid>
@@ -390,7 +393,7 @@ export default function DashboardDefault() {
               </Grid>
             </Grid>
             <Button size="small" variant="contained" sx={{ textTransform: 'capitalize' }}>
-              Need Help?
+              {t('dashboard.needHelp')}
             </Button>
           </Stack>
         </MainCard>

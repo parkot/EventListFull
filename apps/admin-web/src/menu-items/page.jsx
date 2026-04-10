@@ -12,11 +12,13 @@ const icons = {
 const pages = {
   id: 'authentication',
   title: 'Authentication',
+  i18nKey: 'menu.authentication',
   type: 'group',
   children: [
     {
       id: 'login1',
       title: 'Login',
+      i18nKey: 'menu.login',
       type: 'item',
       url: '/login',
       icon: icons.LoginOutlined,
@@ -25,6 +27,7 @@ const pages = {
     {
       id: 'register1',
       title: 'Register',
+      i18nKey: 'menu.register',
       type: 'item',
       url: '/register',
       icon: icons.ProfileOutlined,

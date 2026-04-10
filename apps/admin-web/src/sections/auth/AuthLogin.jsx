@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 // material-ui
 import Button from '@mui/material/Button';
@@ -34,9 +35,21 @@ import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 
 export default function AuthLogin({ isDemo = false }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [checked, setChecked] = React.useState(false);
-
   const [showPassword, setShowPassword] = React.useState(false);
+
+  const validationSchema = useMemo(
+    () =>
+      Yup.object().shape({
+        email: Yup.string().email(t('auth.validation.mustBeValidEmail')).max(255).required(t('auth.validation.emailRequired')),
+        password: Yup.string()
+          .required(t('auth.validation.passwordRequired'))
+          .test('no-leading-trailing-whitespace', t('auth.validation.passwordNoSpaces'), (value) => value === value?.trim())
+          .max(100, t('auth.validation.passwordTooLongLogin'))
+      }),
+    [t]
+  );
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -53,13 +66,7 @@ export default function AuthLogin({ isDemo = false }) {
           password: 'Admin123!',
           submit: null
         }}
-        validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string()
-            .required('Password is required')
-            .test('no-leading-trailing-whitespace', 'Password cannot start or end with spaces', (value) => value === value.trim())
-            .max(100, 'Password must be less than 100 characters')
-        })}
+        validationSchema={validationSchema}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
             const response = await apiRequest('/api/auth/login', {
@@ -73,7 +80,7 @@ export default function AuthLogin({ isDemo = false }) {
 
             if (!response.ok) {
               setStatus({ success: false });
-              setErrors({ submit: 'Invalid email or password.' });
+              setErrors({ submit: t('auth.login.invalidCredentials') });
               return;
             }
 
@@ -92,7 +99,7 @@ export default function AuthLogin({ isDemo = false }) {
             navigate(APP_DEFAULT_PATH, { replace: true });
           } catch {
             setStatus({ success: false });
-            setErrors({ submit: 'Unable to login right now. Please try again.' });
+            setErrors({ submit: t('auth.login.unableToLogin') });
           } finally {
             setSubmitting(false);
           }
@@ -103,7 +110,7 @@ export default function AuthLogin({ isDemo = false }) {
             <Grid container spacing={3}>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="email-login">Email Address</InputLabel>
+                  <InputLabel htmlFor="email-login">{t('auth.login.emailLabel')}</InputLabel>
                   <OutlinedInput
                     id="email-login"
                     type="email"
@@ -111,7 +118,7 @@ export default function AuthLogin({ isDemo = false }) {
                     name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Enter email address"
+                    placeholder={t('auth.login.emailPlaceholder')}
                     fullWidth
                     error={Boolean(touched.email && errors.email)}
                   />
@@ -124,7 +131,7 @@ export default function AuthLogin({ isDemo = false }) {
               </Grid>
               <Grid size={12}>
                 <Stack sx={{ gap: 1 }}>
-                  <InputLabel htmlFor="password-login">Password</InputLabel>
+                  <InputLabel htmlFor="password-login">{t('auth.login.passwordLabel')}</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.password && errors.password)}
@@ -147,7 +154,7 @@ export default function AuthLogin({ isDemo = false }) {
                         </IconButton>
                       </InputAdornment>
                     }
-                    placeholder="Enter password"
+                    placeholder={t('auth.login.passwordPlaceholder')}
                   />
                 </Stack>
                 {touched.password && errors.password && (
@@ -168,17 +175,17 @@ export default function AuthLogin({ isDemo = false }) {
                         size="small"
                       />
                     }
-                    label={<Typography variant="h6">Keep me sign in</Typography>}
+                    label={<Typography variant="h6">{t('auth.login.keepSignedIn')}</Typography>}
                   />
                   <Link variant="h6" component={RouterLink} to="#" color="text.primary">
-                    Forgot Password?
+                    {t('auth.login.forgotPassword')}
                   </Link>
                 </Stack>
               </Grid>
               <Grid size={12}>
                 <AnimateButton>
                   <Button fullWidth size="large" type="submit" variant="contained" color="primary" disabled={isSubmitting}>
-                    Login
+                    {t('auth.login.button')}
                   </Button>
                 </AnimateButton>
               </Grid>

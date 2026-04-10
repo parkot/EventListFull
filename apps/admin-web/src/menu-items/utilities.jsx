@@ -23,11 +23,13 @@ const icons = {
 const utilities = {
   id: 'utilities',
   title: 'Utilities',
+  i18nKey: 'menu.utilities',
   type: 'group',
   children: [
     {
       id: 'util-typography',
       title: 'Typography',
+      i18nKey: 'menu.typography',
       type: 'item',
       url: '/typography',
       icon: icons.FontSizeOutlined
@@ -35,6 +37,7 @@ const utilities = {
     {
       id: 'util-color',
       title: 'Color',
+      i18nKey: 'menu.color',
       type: 'item',
       url: '/color',
       icon: icons.BgColorsOutlined
@@ -42,6 +45,7 @@ const utilities = {
     {
       id: 'util-shadow',
       title: 'Shadow',
+      i18nKey: 'menu.shadow',
       type: 'item',
       url: '/shadow',
       icon: icons.BarcodeOutlined

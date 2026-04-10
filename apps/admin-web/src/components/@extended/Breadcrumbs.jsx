@@ -12,6 +12,7 @@ import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 // project imports
 import MainCard from 'components/MainCard';
 import navigation from 'menu-items';
+import { useTranslation } from 'react-i18next';
 
 // assets
 import ApartmentOutlined from '@ant-design/icons/ApartmentOutlined';
@@ -36,6 +37,7 @@ export default function Breadcrumbs({
 }) {
   const theme = useTheme();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const [main, setMain] = useState();
   const [item, setItem] = useState();
@@ -112,7 +114,7 @@ export default function Breadcrumbs({
         color={window.location.pathname === main.url ? 'text.primary' : 'text.secondary'}
       >
         {icons && <CollapseIcon style={iconSX} />}
-        {main?.title}
+        {main?.i18nKey ? t(main.i18nKey, { defaultValue: main?.title }) : main?.title}
       </Typography>
     );
 
@@ -136,14 +138,14 @@ export default function Breadcrumbs({
                 <Typography component={Link} to="/" color="text.secondary" variant="h6" sx={{ textDecoration: 'none' }}>
                   {icons && <HomeOutlined style={iconSX} />}
                   {icon && !icons && <HomeFilled style={{ ...iconSX, marginRight: 0 }} />}
-                  {(!icon || icons) && 'Home'}
+                  {(!icon || icons) && t('common.home')}
                 </Typography>
                 {mainContent}
               </MuiBreadcrumbs>
             </Grid>
             {title && titleBottom && (
               <Grid sx={{ mt: card === false ? 0.25 : 1 }}>
-                <Typography variant="h2">{main.title}</Typography>
+                <Typography variant="h2">{main.i18nKey ? t(main.i18nKey, { defaultValue: main.title }) : main.title}</Typography>
               </Grid>
             )}
           </Grid>
@@ -155,7 +157,7 @@ export default function Breadcrumbs({
 
   // items
   if ((item && item.type === 'item') || (item?.type === 'group' && item?.url) || custom) {
-    itemTitle = item?.title;
+    itemTitle = item?.i18nKey ? t(item.i18nKey, { defaultValue: item?.title }) : item?.title;
 
     ItemIcon = item?.icon ? item.icon : ApartmentOutlined;
     itemContent = (
@@ -170,7 +172,7 @@ export default function Breadcrumbs({
         <Typography component={Link} to="/" color="text.secondary" variant="h6" sx={{ textDecoration: 'none' }}>
           {icons && <HomeOutlined style={iconSX} />}
           {icon && !icons && <HomeFilled style={{ ...iconSX, marginRight: 0 }} />}
-          {(!icon || icons) && 'Home'}
+          {(!icon || icons) && t('common.home')}
         </Typography>
         {mainContent}
         {itemContent}
@@ -192,7 +194,7 @@ export default function Breadcrumbs({
                 color={!link.to ? 'text.primary' : 'text.secondary'}
               >
                 {link.icon && <CollapseIcon style={iconSX} />}
-                {link.title}
+                {link.i18nKey ? t(link.i18nKey, { defaultValue: link.title }) : link.title}
               </Typography>
             );
           })}
@@ -218,13 +220,13 @@ export default function Breadcrumbs({
           >
             {title && !titleBottom && (
               <Grid>
-                <Typography variant="h2">{custom ? heading : item?.title}</Typography>
+                <Typography variant="h2">{custom ? heading : itemTitle}</Typography>
               </Grid>
             )}
             <Grid>{tempContent}</Grid>
             {title && titleBottom && (
               <Grid sx={{ mt: card === false ? 0.25 : 1 }}>
-                <Typography variant="h2">{custom ? heading : item?.title}</Typography>
+                <Typography variant="h2">{custom ? heading : itemTitle}</Typography>
               </Grid>
             )}
           </Grid>

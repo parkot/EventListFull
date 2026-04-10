@@ -15,12 +15,14 @@ import Box from '@mui/material/Box';
 import IconButton from 'components/@extended/IconButton';
 
 import { handlerDrawerOpen, useGetMenuMaster } from 'api/menu';
+import { useTranslation } from 'react-i18next';
 
 // ==============================|| NAVIGATION - LIST ITEM ||============================== //
 
 export default function NavItem({ item, level, isParents = false, setSelectedID }) {
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
+  const { t } = useTranslation();
 
   const downLG = useMediaQuery((theme) => theme.breakpoints.down('lg'));
 
@@ -112,7 +114,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
             <ListItemText
               primary={
                 <Typography variant="h6" sx={{ color: isSelected ? iconSelectedColor : textColor }}>
-                  {item.title}
+                  {item.i18nKey ? t(item.i18nKey, { defaultValue: item.title }) : item.title}
                 </Typography>
               }
             />
@@ -122,7 +124,7 @@ export default function NavItem({ item, level, isParents = false, setSelectedID 
               color={item.chip.color}
               variant={item.chip.variant}
               size={item.chip.size}
-              label={item.chip.label}
+              label={item.chip.i18nKey ? t(item.chip.i18nKey, { defaultValue: item.chip.label }) : item.chip.label}
               avatar={item.chip.avatar && <Avatar>{item.chip.avatar}</Avatar>}
             />
           )}

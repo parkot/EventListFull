@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import AuthFooter from 'components/cards/AuthFooter';
 import Logo from 'components/logo';
 import AuthCard from './AuthCard';
+import LanguageSwitcher from 'layout/Dashboard/Header/HeaderContent/LanguageSwitcher';
 
 // assets
 import AuthBackground from './AuthBackground';
@@ -20,8 +21,9 @@ export default function AuthWrapper({ children }) {
     <Box sx={{ minHeight: '100vh' }}>
       <AuthBackground />
       <Stack sx={{ minHeight: '100vh', justifyContent: 'flex-end' }}>
-        <Box sx={{ px: 3, mt: 3 }} size={12}>
+        <Box sx={{ px: 3, mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} size={12}>
           <Logo to="/" />
+          <LanguageSwitcher />
         </Box>
         <Box size={12}>
           <Grid
