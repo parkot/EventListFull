@@ -67,6 +67,74 @@ const es = {
     typicalReply: 'Respuesta tipica en 5 min',
     needHelp: 'Necesitas ayuda?'
   },
+  eventsPage: {
+    title: 'Eventos',
+    createNewEvent: 'Crear nuevo evento',
+    loadingEvents: 'Cargando eventos...',
+    noEvents: 'Aun no hay eventos. Crea tu primer evento.',
+    edit: 'Editar',
+    createEvent: 'Crear evento',
+    editEvent: 'Editar evento',
+    save: 'Guardar',
+    saveChanges: 'Guardar cambios',
+    cancel: 'Cancelar',
+    close: 'Cerrar',
+    guestsTitle: 'Invitados',
+    loadingGuests: 'Cargando invitados...',
+    noGuests: 'No se encontraron invitados para este evento.',
+    eventFallback: 'Evento',
+    table: {
+      edit: 'Editar',
+      title: 'Titulo',
+      occasion: 'Ocasion',
+      scheduledLocal: 'Programado (local)',
+      venue: 'Lugar',
+      guests: 'Invitados'
+    },
+    form: {
+      title: 'Titulo',
+      occasionType: 'Tipo de ocasion',
+      scheduledDateTime: 'Fecha y hora programada',
+      venue: 'Lugar',
+      address: 'Direccion',
+      timeZone: 'Zona horaria',
+      defaultLanguage: 'Idioma predeterminado'
+    },
+    guestsTable: {
+      name: 'Nombre',
+      countPerson: 'Cantidad de personas',
+      status: 'Estado'
+    },
+    rsvp: {
+      accepted: 'Aceptado',
+      rejected: 'Rechazado',
+      maybe: 'Quizas',
+      pending: 'Pendiente'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API backend en {{baseUrl}}. Inicia la API con: dotnet run --project src/Backend/EventList.Api',
+      loadEvents: 'No se pueden cargar los eventos ahora.',
+      loadEventDetails: 'Error al cargar los detalles del evento.',
+      loadGuests: 'Error al cargar invitados.',
+      createEvent: 'Error al crear evento.',
+      updateEvent: 'Error al actualizar evento.'
+    },
+    validation: {
+      titleMax: 'El titulo debe tener 120 caracteres o menos',
+      titleRequired: 'El titulo es obligatorio',
+      occasionTypeMax: 'El tipo de ocasion debe tener 60 caracteres o menos',
+      occasionTypeRequired: 'El tipo de ocasion es obligatorio',
+      scheduledAtRequired: 'La fecha y hora son obligatorias',
+      venueMax: 'El lugar debe tener 160 caracteres o menos',
+      venueRequired: 'El lugar es obligatorio',
+      addressMax: 'La direccion debe tener 240 caracteres o menos',
+      addressRequired: 'La direccion es obligatoria',
+      timeZoneMax: 'La zona horaria debe tener 100 caracteres o menos',
+      timeZoneRequired: 'La zona horaria es obligatoria',
+      defaultLanguageMax: 'El idioma debe tener 10 caracteres o menos',
+      defaultLanguageRequired: 'El idioma predeterminado es obligatorio'
+    }
+  },
   auth: {
     login: {
       title: 'Iniciar sesion',
@@ -80,6 +148,15 @@ const es = {
       button: 'Iniciar sesion',
       invalidCredentials: 'Correo o contrasena invalidos.',
       unableToLogin: 'No se puede iniciar sesion ahora. Por favor intenta de nuevo.'
+    },
+    forgotPassword: {
+      title: 'Olvide mi contrasena',
+      backToLogin: 'Volver al inicio de sesion',
+      emailLabel: 'Correo electronico',
+      emailPlaceholder: 'Ingresa tu correo',
+      button: 'Enviar enlace de recuperacion',
+      success: 'Si el correo existe, se envio un enlace de recuperacion.',
+      error: 'No se pudo enviar el enlace ahora. Intenta de nuevo.'
     },
     register: {
       title: 'Registrarse',

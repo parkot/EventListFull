@@ -67,6 +67,75 @@ const el = {
     typicalReply: 'Συνήθης απάντηση εντός 5 λεπτών',
     needHelp: 'Χρειάζεστε βοήθεια;'
   },
+  eventsPage: {
+    title: 'Εκδηλώσεις',
+    createNewEvent: 'Δημιουργία νέας εκδήλωσης',
+    loadingEvents: 'Φόρτωση εκδηλώσεων...',
+    noEvents: 'Δεν υπάρχουν εκδηλώσεις ακόμα. Δημιουργήστε την πρώτη σας εκδήλωση.',
+    edit: 'Επεξεργασία',
+    createEvent: 'Δημιουργία εκδήλωσης',
+    editEvent: 'Επεξεργασία εκδήλωσης',
+    save: 'Αποθήκευση',
+    saveChanges: 'Αποθήκευση αλλαγών',
+    cancel: 'Ακύρωση',
+    close: 'Κλείσιμο',
+    guestsTitle: 'Καλεσμένοι',
+    loadingGuests: 'Φόρτωση καλεσμένων...',
+    noGuests: 'Δεν βρέθηκαν καλεσμένοι για αυτή την εκδήλωση.',
+    eventFallback: 'Εκδήλωση',
+    table: {
+      edit: 'Επεξεργασία',
+      title: 'Τίτλος',
+      occasion: 'Περίσταση',
+      scheduledLocal: 'Προγραμματισμένο (τοπική ώρα)',
+      venue: 'Χώρος',
+      guests: 'Καλεσμένοι'
+    },
+    form: {
+      title: 'Τίτλος',
+      occasionType: 'Τύπος περίστασης',
+      scheduledDateTime: 'Ημερομηνία και ώρα',
+      venue: 'Χώρος',
+      address: 'Διεύθυνση',
+      timeZone: 'Ζώνη ώρας',
+      defaultLanguage: 'Προεπιλεγμένη γλώσσα'
+    },
+    guestsTable: {
+      name: 'Όνομα',
+      countPerson: 'Αριθμός ατόμων',
+      status: 'Κατάσταση'
+    },
+    rsvp: {
+      accepted: 'Αποδοχή',
+      rejected: 'Απόρριψη',
+      maybe: 'Ίσως',
+      pending: 'Σε εκκρεμότητα'
+    },
+    errors: {
+      backendUnavailable:
+        'Αδυναμία πρόσβασης στο backend API στο {{baseUrl}}. Ξεκινήστε το API με: dotnet run --project src/Backend/EventList.Api',
+      loadEvents: 'Αδυναμία φόρτωσης εκδηλώσεων αυτή τη στιγμή.',
+      loadEventDetails: 'Αποτυχία φόρτωσης λεπτομερειών εκδήλωσης.',
+      loadGuests: 'Αποτυχία φόρτωσης καλεσμένων.',
+      createEvent: 'Αποτυχία δημιουργίας εκδήλωσης.',
+      updateEvent: 'Αποτυχία ενημέρωσης εκδήλωσης.'
+    },
+    validation: {
+      titleMax: 'Ο τίτλος πρέπει να έχει έως 120 χαρακτήρες',
+      titleRequired: 'Ο τίτλος είναι υποχρεωτικός',
+      occasionTypeMax: 'Ο τύπος περίστασης πρέπει να έχει έως 60 χαρακτήρες',
+      occasionTypeRequired: 'Ο τύπος περίστασης είναι υποχρεωτικός',
+      scheduledAtRequired: 'Η ημερομηνία και ώρα είναι υποχρεωτικές',
+      venueMax: 'Ο χώρος πρέπει να έχει έως 160 χαρακτήρες',
+      venueRequired: 'Ο χώρος είναι υποχρεωτικός',
+      addressMax: 'Η διεύθυνση πρέπει να έχει έως 240 χαρακτήρες',
+      addressRequired: 'Η διεύθυνση είναι υποχρεωτική',
+      timeZoneMax: 'Η ζώνη ώρας πρέπει να έχει έως 100 χαρακτήρες',
+      timeZoneRequired: 'Η ζώνη ώρας είναι υποχρεωτική',
+      defaultLanguageMax: 'Η γλώσσα πρέπει να έχει έως 10 χαρακτήρες',
+      defaultLanguageRequired: 'Η προεπιλεγμένη γλώσσα είναι υποχρεωτική'
+    }
+  },
   auth: {
     login: {
       title: 'Σύνδεση',
@@ -80,6 +149,15 @@ const el = {
       button: 'Σύνδεση',
       invalidCredentials: 'Μη έγκυρο email ή κωδικός.',
       unableToLogin: 'Αδυναμία σύνδεσης αυτή τη στιγμή. Δοκιμάστε ξανά.'
+    },
+    forgotPassword: {
+      title: 'Ξέχασα τον κωδικό',
+      backToLogin: 'Επιστροφή στη σύνδεση',
+      emailLabel: 'Διεύθυνση email',
+      emailPlaceholder: 'Εισάγετε email',
+      button: 'Αποστολή συνδέσμου επαναφοράς',
+      success: 'Αν υπάρχει το email, στάλθηκε σύνδεσμος επαναφοράς.',
+      error: 'Αδυναμία αποστολής συνδέσμου τώρα. Δοκιμάστε ξανά.'
     },
     register: {
       title: 'Εγγραφή',

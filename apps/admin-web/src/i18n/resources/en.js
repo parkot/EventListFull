@@ -67,6 +67,74 @@ const en = {
     typicalReply: 'Typical reply within 5 min',
     needHelp: 'Need Help?'
   },
+  eventsPage: {
+    title: 'Events',
+    createNewEvent: 'Create New Event',
+    loadingEvents: 'Loading events...',
+    noEvents: 'No events yet. Create your first event.',
+    edit: 'Edit',
+    createEvent: 'Create Event',
+    editEvent: 'Edit Event',
+    save: 'Save',
+    saveChanges: 'Save Changes',
+    cancel: 'Cancel',
+    close: 'Close',
+    guestsTitle: 'Guests',
+    loadingGuests: 'Loading guests...',
+    noGuests: 'No guests found for this event.',
+    eventFallback: 'Event',
+    table: {
+      edit: 'Edit',
+      title: 'Title',
+      occasion: 'Occasion',
+      scheduledLocal: 'Scheduled (Local)',
+      venue: 'Venue',
+      guests: 'Guests'
+    },
+    form: {
+      title: 'Title',
+      occasionType: 'Occasion Type',
+      scheduledDateTime: 'Scheduled Date & Time',
+      venue: 'Venue',
+      address: 'Address',
+      timeZone: 'Time Zone',
+      defaultLanguage: 'Default Language'
+    },
+    guestsTable: {
+      name: 'Name',
+      countPerson: 'Count Person',
+      status: 'Status'
+    },
+    rsvp: {
+      accepted: 'Accepted',
+      rejected: 'Rejected',
+      maybe: 'Maybe',
+      pending: 'Pending'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API at {{baseUrl}}. Start API with: dotnet run --project src/Backend/EventList.Api',
+      loadEvents: 'Unable to load events right now.',
+      loadEventDetails: 'Failed to load event details.',
+      loadGuests: 'Failed to load guests.',
+      createEvent: 'Failed to create event.',
+      updateEvent: 'Failed to update event.'
+    },
+    validation: {
+      titleMax: 'Title must be 120 characters or less',
+      titleRequired: 'Title is required',
+      occasionTypeMax: 'Occasion type must be 60 characters or less',
+      occasionTypeRequired: 'Occasion type is required',
+      scheduledAtRequired: 'Date and time are required',
+      venueMax: 'Venue must be 160 characters or less',
+      venueRequired: 'Venue is required',
+      addressMax: 'Address must be 240 characters or less',
+      addressRequired: 'Address is required',
+      timeZoneMax: 'Time zone must be 100 characters or less',
+      timeZoneRequired: 'Time zone is required',
+      defaultLanguageMax: 'Language must be 10 characters or less',
+      defaultLanguageRequired: 'Default language is required'
+    }
+  },
   auth: {
     login: {
       title: 'Login',
@@ -80,6 +148,15 @@ const en = {
       button: 'Login',
       invalidCredentials: 'Invalid email or password.',
       unableToLogin: 'Unable to login right now. Please try again.'
+    },
+    forgotPassword: {
+      title: 'Forgot Password',
+      backToLogin: 'Back to login',
+      emailLabel: 'Email Address',
+      emailPlaceholder: 'Enter email address',
+      button: 'Send Reset Link',
+      success: 'If the email exists, a reset link has been sent.',
+      error: 'Unable to send reset link right now. Please try again.'
     },
     register: {
       title: 'Sign up',

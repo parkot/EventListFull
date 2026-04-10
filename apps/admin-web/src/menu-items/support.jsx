@@ -1,10 +1,9 @@
 // assets
-import { ChromeOutlined, QuestionOutlined } from '@ant-design/icons';
+import { ChromeOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-  ChromeOutlined,
-  QuestionOutlined
+  ChromeOutlined
 };
 
 // ==============================|| MENU ITEMS - SAMPLE PAGE & DOCUMENTATION ||============================== //
@@ -22,16 +21,6 @@ const support = {
       type: 'item',
       url: '/sample-page',
       icon: icons.ChromeOutlined
-    },
-    {
-      id: 'documentation',
-      title: 'Documentation',
-      i18nKey: 'menu.documentation',
-      type: 'item',
-      url: 'https://codedthemes.gitbook.io/mantis/',
-      icon: icons.QuestionOutlined,
-      external: true,
-      target: true
     }
   ]
 };

@@ -177,7 +177,7 @@ export default function AuthLogin({ isDemo = false }) {
                     }
                     label={<Typography variant="h6">{t('auth.login.keepSignedIn')}</Typography>}
                   />
-                  <Link variant="h6" component={RouterLink} to="#" color="text.primary">
+                  <Link variant="h6" component={RouterLink} to="/forgot-password" color="text.primary">
                     {t('auth.login.forgotPassword')}
                   </Link>
                 </Stack>

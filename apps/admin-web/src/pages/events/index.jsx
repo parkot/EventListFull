@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
+import { useTranslation } from 'react-i18next';
 
 // material-ui
 import Alert from '@mui/material/Alert';
@@ -24,16 +25,6 @@ import Typography from '@mui/material/Typography';
 // project imports
 import MainCard from 'components/MainCard';
 import { apiRequest, getApiBaseUrl } from 'utils/api';
-
-const createEventSchema = Yup.object().shape({
-  title: Yup.string().max(120, 'Title must be 120 characters or less').required('Title is required'),
-  occasionType: Yup.string().max(60, 'Occasion type must be 60 characters or less').required('Occasion type is required'),
-  scheduledAtUtc: Yup.string().required('Date and time are required'),
-  venue: Yup.string().max(160, 'Venue must be 160 characters or less').required('Venue is required'),
-  address: Yup.string().max(240, 'Address must be 240 characters or less').required('Address is required'),
-  timeZone: Yup.string().max(100, 'Time zone must be 100 characters or less').required('Time zone is required'),
-  defaultLanguage: Yup.string().max(10, 'Language must be 10 characters or less').required('Default language is required')
-});
 
 function toLocalDateTimeInputValue(date) {
   const timezoneOffset = date.getTimezoneOffset() * 60000;
@@ -67,30 +58,31 @@ async function getErrorMessageFromResponse(response, fallback) {
   }
 }
 
-function toFriendlyRequestError(error, fallback) {
+function toFriendlyRequestError(error, fallback, unreachableMessage) {
   const message = error?.message || '';
 
   if (message.toLowerCase().includes('failed to fetch')) {
-    return `Cannot reach backend API at ${getApiBaseUrl()}. Start API with: dotnet run --project src/Backend/EventList.Api`;
+    return unreachableMessage;
   }
 
   return message || fallback;
 }
 
-function getRsvpChipProps(status) {
+function getRsvpChipProps(status, t) {
   switch (status) {
     case 'Attending':
-      return { label: 'Accepted', color: 'success' };
+      return { label: t('eventsPage.rsvp.accepted'), color: 'success' };
     case 'Declined':
-      return { label: 'Rejected', color: 'error' };
+      return { label: t('eventsPage.rsvp.rejected'), color: 'error' };
     case 'Maybe':
-      return { label: 'Maybe', color: 'info' };
+      return { label: t('eventsPage.rsvp.maybe'), color: 'info' };
     default:
-      return { label: 'Pending', color: 'warning' };
+      return { label: t('eventsPage.rsvp.pending'), color: 'warning' };
   }
 }
 
 export default function EventsPage() {
+  const { t } = useTranslation();
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -103,6 +95,29 @@ export default function EventsPage() {
   const [guestsLoadError, setGuestsLoadError] = useState('');
 
   const defaultTimeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', []);
+  const apiUnavailableMessage = useMemo(
+    () =>
+      t('eventsPage.errors.backendUnavailable', {
+        baseUrl: getApiBaseUrl()
+      }),
+    [t]
+  );
+
+  const createEventSchema = useMemo(
+    () =>
+      Yup.object().shape({
+        title: Yup.string().max(120, t('eventsPage.validation.titleMax')).required(t('eventsPage.validation.titleRequired')),
+        occasionType: Yup.string().max(60, t('eventsPage.validation.occasionTypeMax')).required(t('eventsPage.validation.occasionTypeRequired')),
+        scheduledAtUtc: Yup.string().required(t('eventsPage.validation.scheduledAtRequired')),
+        venue: Yup.string().max(160, t('eventsPage.validation.venueMax')).required(t('eventsPage.validation.venueRequired')),
+        address: Yup.string().max(240, t('eventsPage.validation.addressMax')).required(t('eventsPage.validation.addressRequired')),
+        timeZone: Yup.string().max(100, t('eventsPage.validation.timeZoneMax')).required(t('eventsPage.validation.timeZoneRequired')),
+        defaultLanguage: Yup.string()
+          .max(10, t('eventsPage.validation.defaultLanguageMax'))
+          .required(t('eventsPage.validation.defaultLanguageRequired'))
+      }),
+    [t]
+  );
 
   const initialFormValues = useMemo(
     () => ({
@@ -125,17 +140,17 @@ export default function EventsPage() {
       const response = await apiRequest('/api/events/');
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Unable to load events right now.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('eventsPage.errors.loadEvents')));
       }
 
       const data = await response.json();
       setEvents(Array.isArray(data) ? data : []);
     } catch (error) {
-      setLoadError(toFriendlyRequestError(error, 'Unable to load events right now.'));
+      setLoadError(toFriendlyRequestError(error, t('eventsPage.errors.loadEvents'), apiUnavailableMessage));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [apiUnavailableMessage, t]);
 
   useEffect(() => {
     loadEvents();
@@ -169,20 +184,20 @@ export default function EventsPage() {
       const response = await apiRequest(`/api/events/${eventId}`);
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to load event details.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('eventsPage.errors.loadEventDetails')));
       }
 
       const eventData = await response.json();
       setEditingEvent(eventData);
       setIsCreateDialogOpen(true);
     } catch (error) {
-      setLoadError(toFriendlyRequestError(error, 'Failed to load event details.'));
+      setLoadError(toFriendlyRequestError(error, t('eventsPage.errors.loadEventDetails'), apiUnavailableMessage));
     }
   };
 
   const openGuestsDialog = async (eventId, eventTitle) => {
     setIsGuestsDialogOpen(true);
-    setSelectedEventTitle(eventTitle || 'Event');
+    setSelectedEventTitle(eventTitle || t('eventsPage.eventFallback'));
     setEventGuests([]);
     setGuestsLoadError('');
     setIsGuestsLoading(true);
@@ -191,14 +206,14 @@ export default function EventsPage() {
       const response = await apiRequest(`/api/events/${eventId}`);
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to load guests.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('eventsPage.errors.loadGuests')));
       }
 
       const eventData = await response.json();
-      setSelectedEventTitle(eventData?.title || eventTitle || 'Event');
+      setSelectedEventTitle(eventData?.title || eventTitle || t('eventsPage.eventFallback'));
       setEventGuests(Array.isArray(eventData?.guests) ? eventData.guests : []);
     } catch (error) {
-      setGuestsLoadError(toFriendlyRequestError(error, 'Failed to load guests.'));
+      setGuestsLoadError(toFriendlyRequestError(error, t('eventsPage.errors.loadGuests'), apiUnavailableMessage));
     } finally {
       setIsGuestsLoading(false);
     }
@@ -206,10 +221,10 @@ export default function EventsPage() {
 
   return (
     <MainCard
-      title="Events"
+      title={t('eventsPage.title')}
       secondary={
         <Button variant="contained" onClick={openCreateDialog}>
-          Create New Event
+          {t('eventsPage.createNewEvent')}
         </Button>
       }
     >
@@ -218,7 +233,7 @@ export default function EventsPage() {
 
         {isLoading ? (
           <Typography variant="body2" color="text.secondary">
-            Loading events...
+            {t('eventsPage.loadingEvents')}
           </Typography>
         ) : (
           <TableContainer
@@ -231,12 +246,12 @@ export default function EventsPage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Edit</TableCell>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Occasion</TableCell>
-                  <TableCell>Scheduled (Local)</TableCell>
-                  <TableCell>Venue</TableCell>
-                  <TableCell align="right">Guests</TableCell>
+                  <TableCell>{t('eventsPage.table.edit')}</TableCell>
+                  <TableCell>{t('eventsPage.table.title')}</TableCell>
+                  <TableCell>{t('eventsPage.table.occasion')}</TableCell>
+                  <TableCell>{t('eventsPage.table.scheduledLocal')}</TableCell>
+                  <TableCell>{t('eventsPage.table.venue')}</TableCell>
+                  <TableCell align="right">{t('eventsPage.table.guests')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -244,7 +259,7 @@ export default function EventsPage() {
                   <TableRow>
                     <TableCell colSpan={6}>
                       <Typography variant="body2" color="text.secondary">
-                        No events yet. Create your first event.
+                        {t('eventsPage.noEvents')}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -253,7 +268,7 @@ export default function EventsPage() {
                     <TableRow hover key={eventItem.id}>
                       <TableCell>
                         <Button size="small" variant="outlined" onClick={() => openEditDialog(eventItem.id)}>
-                          Edit
+                          {t('eventsPage.edit')}
                         </Button>
                       </TableCell>
                       <TableCell>{eventItem.title}</TableCell>
@@ -289,7 +304,12 @@ export default function EventsPage() {
             });
 
             if (!response.ok) {
-              throw new Error(await getErrorMessageFromResponse(response, 'Failed to create event.'));
+              throw new Error(
+                await getErrorMessageFromResponse(
+                  response,
+                  editingEvent ? t('eventsPage.errors.updateEvent') : t('eventsPage.errors.createEvent')
+                )
+              );
             }
 
             setIsCreateDialogOpen(false);
@@ -297,7 +317,13 @@ export default function EventsPage() {
             resetForm();
             await loadEvents();
           } catch (error) {
-            setStatus(toFriendlyRequestError(error, 'Failed to create event.'));
+            setStatus(
+              toFriendlyRequestError(
+                error,
+                editingEvent ? t('eventsPage.errors.updateEvent') : t('eventsPage.errors.createEvent'),
+                apiUnavailableMessage
+              )
+            );
           } finally {
             setSubmitting(false);
           }
@@ -317,7 +343,7 @@ export default function EventsPage() {
             }}
           >
             <Form noValidate onSubmit={handleSubmit}>
-              <DialogTitle>{editingEvent ? 'Edit Event' : 'Create Event'}</DialogTitle>
+              <DialogTitle>{editingEvent ? t('eventsPage.editEvent') : t('eventsPage.createEvent')}</DialogTitle>
               <DialogContent dividers>
                 <Stack spacing={2} sx={{ pt: 1 }}>
                   {status && <Alert severity="error">{status}</Alert>}
@@ -326,7 +352,7 @@ export default function EventsPage() {
                     fullWidth
                     id="title"
                     name="title"
-                    label="Title"
+                    label={t('eventsPage.form.title')}
                     value={values.title}
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -338,7 +364,7 @@ export default function EventsPage() {
                     fullWidth
                     id="occasionType"
                     name="occasionType"
-                    label="Occasion Type"
+                    label={t('eventsPage.form.occasionType')}
                     value={values.occasionType}
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -350,7 +376,7 @@ export default function EventsPage() {
                     fullWidth
                     id="scheduledAtUtc"
                     name="scheduledAtUtc"
-                    label="Scheduled Date & Time"
+                    label={t('eventsPage.form.scheduledDateTime')}
                     type="datetime-local"
                     value={values.scheduledAtUtc}
                     onBlur={handleBlur}
@@ -364,7 +390,7 @@ export default function EventsPage() {
                     fullWidth
                     id="venue"
                     name="venue"
-                    label="Venue"
+                    label={t('eventsPage.form.venue')}
                     value={values.venue}
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -376,7 +402,7 @@ export default function EventsPage() {
                     fullWidth
                     id="address"
                     name="address"
-                    label="Address"
+                    label={t('eventsPage.form.address')}
                     value={values.address}
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -389,7 +415,7 @@ export default function EventsPage() {
                       fullWidth
                       id="timeZone"
                       name="timeZone"
-                      label="Time Zone"
+                      label={t('eventsPage.form.timeZone')}
                       value={values.timeZone}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -401,7 +427,7 @@ export default function EventsPage() {
                       fullWidth
                       id="defaultLanguage"
                       name="defaultLanguage"
-                      label="Default Language"
+                      label={t('eventsPage.form.defaultLanguage')}
                       value={values.defaultLanguage}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -421,10 +447,10 @@ export default function EventsPage() {
                   }}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t('eventsPage.cancel')}
                 </Button>
                 <Button type="submit" variant="contained" disabled={isSubmitting}>
-                  {editingEvent ? 'Save Changes' : 'Save'}
+                  {editingEvent ? t('eventsPage.saveChanges') : t('eventsPage.save')}
                 </Button>
               </DialogActions>
             </Form>
@@ -433,7 +459,9 @@ export default function EventsPage() {
       </Formik>
 
       <Dialog fullWidth maxWidth="md" open={isGuestsDialogOpen} onClose={() => setIsGuestsDialogOpen(false)}>
-        <DialogTitle>Guests - {selectedEventTitle}</DialogTitle>
+        <DialogTitle>
+          {t('eventsPage.guestsTitle')} - {selectedEventTitle}
+        </DialogTitle>
         <DialogContent dividers>
           {guestsLoadError && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -443,7 +471,7 @@ export default function EventsPage() {
 
           {isGuestsLoading ? (
             <Typography variant="body2" color="text.secondary">
-              Loading guests...
+              {t('eventsPage.loadingGuests')}
             </Typography>
           ) : (
             <TableContainer
@@ -456,9 +484,9 @@ export default function EventsPage() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell align="center">Count Person</TableCell>
-                    <TableCell>Status</TableCell>
+                    <TableCell>{t('eventsPage.guestsTable.name')}</TableCell>
+                    <TableCell align="center">{t('eventsPage.guestsTable.countPerson')}</TableCell>
+                    <TableCell>{t('eventsPage.guestsTable.status')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -466,13 +494,13 @@ export default function EventsPage() {
                     <TableRow>
                       <TableCell colSpan={3}>
                         <Typography variant="body2" color="text.secondary">
-                          No guests found for this event.
+                            {t('eventsPage.noGuests')}
                         </Typography>
                       </TableCell>
                     </TableRow>
                   ) : (
                     eventGuests.map((guest) => {
-                      const chip = getRsvpChipProps(guest.rsvpStatus);
+                        const chip = getRsvpChipProps(guest.rsvpStatus, t);
 
                       return (
                         <TableRow key={guest.guestId} hover>
@@ -491,7 +519,7 @@ export default function EventsPage() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsGuestsDialogOpen(false)}>Close</Button>
+          <Button onClick={() => setIsGuestsDialogOpen(false)}>{t('eventsPage.close')}</Button>
         </DialogActions>
       </Dialog>
     </MainCard>

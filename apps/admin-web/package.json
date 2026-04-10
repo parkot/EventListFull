@@ -1,11 +1,11 @@
 {
-  "name": "mantis-material-free-react",
+  "name": "eventlist-admin-web",
   "version": "2.1.0",
-  "homepage": "https://mantisdashboard.com/free",
+  "homepage": "/",
   "author": {
-    "name": "CodedThemes",
-    "email": "codedthemes@gmail.com",
-    "url": "https://codedthemes.com/"
+    "name": "EventList Team",
+    "email": "dev@eventlist.local",
+    "url": "https://eventlist.local"
   },
   "scripts": {
     "start": "vite",
