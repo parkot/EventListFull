@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Backend/">
+    <Project Path="src/Backend/EventList.Api/EventList.Api.csproj" />
+    <Project Path="src/Backend/EventList.Application/EventList.Application.csproj" />
+    <Project Path="src/Backend/EventList.Domain/EventList.Domain.csproj" />
+    <Project Path="src/Backend/EventList.Infrastructure/EventList.Infrastructure.csproj" />
+    <Project Path="src/Backend/EventList.Tests/EventList.Tests.csproj" />
+  </Folder>
+</Solution>
