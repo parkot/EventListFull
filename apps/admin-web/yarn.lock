@@ -563,6 +563,13 @@
   dependencies:
     "@babel/runtime" "^7.28.6"
 
+"@mui/types@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.npmjs.org/@mui/types/-/types-9.0.0.tgz"
+  integrity sha512-i1cuFCAWN44b3AJWO7mh7tuh1sqbQSeVr/94oG0TX5uXivac8XalgE4/6fQZcmGZigzbQ35IXxj/4jLpRIBYZg==
+  dependencies:
+    "@babel/runtime" "^7.29.2"
+
 "@mui/types@~7.2.24":
   version "7.2.24"
   resolved "https://registry.npmjs.org/@mui/types/-/types-7.2.24.tgz"
@@ -616,6 +623,18 @@
     prop-types "^15.8.1"
     react-is "^19.2.3"
 
+"@mui/utils@9.0.0":
+  version "9.0.0"
+  resolved "https://registry.npmjs.org/@mui/utils/-/utils-9.0.0.tgz"
+  integrity sha512-bQcqyg/gjULUqTuyUjSAFr6LQGLvtkNtDbJerAtoUn9kGZ0hg5QJiN1PLHMLbeFpe3te1831uq7GFl2ITokGdg==
+  dependencies:
+    "@babel/runtime" "^7.29.2"
+    "@mui/types" "^9.0.0"
+    "@types/prop-types" "^15.7.15"
+    clsx "^2.1.1"
+    prop-types "^15.8.1"
+    react-is "^19.2.4"
+
 "@mui/x-charts-vendor@8.26.0":
   version "8.26.0"
   resolved "https://registry.npmjs.org/@mui/x-charts-vendor/-/x-charts-vendor-8.26.0.tgz"
@@ -661,12 +680,35 @@
     reselect "^5.1.1"
     use-sync-external-store "^1.6.0"
 
+"@mui/x-date-pickers@^9.0.4":
+  version "9.0.4"
+  resolved "https://registry.npmjs.org/@mui/x-date-pickers/-/x-date-pickers-9.0.4.tgz"
+  integrity sha512-Zq4ZUYyqFtv9BjAyYOkUEiAykdAJnvFoPY8gaARXWleyX8QY5ztY5I1yD3iS6R+k/QFWNOef07VYU7nKFdRrYA==
+  dependencies:
+    "@babel/runtime" "^7.29.2"
+    "@mui/utils" "9.0.0"
+    "@mui/x-internals" "^9.0.4"
+    "@types/react-transition-group" "^4.4.12"
+    clsx "^2.1.1"
+    prop-types "^15.8.1"
+    react-transition-group "^4.4.5"
+
 "@mui/x-internal-gestures@0.4.0":
   version "0.4.0"
   resolved "https://registry.npmjs.org/@mui/x-internal-gestures/-/x-internal-gestures-0.4.0.tgz"
   integrity sha512-i0W6v9LoiNY8Yf1goOmaygtz/ncPJGBedhpDfvNg/i8BvzPwJcBaeW4rqPucJfVag9KQ8MSssBBrvYeEnrQmhw==
   dependencies:
     "@babel/runtime" "^7.28.4"
+
+"@mui/x-internals@^9.0.4":
+  version "9.0.4"
+  resolved "https://registry.npmjs.org/@mui/x-internals/-/x-internals-9.0.4.tgz"
+  integrity sha512-I84xcPZOEmN29syfAjgsv25kpW7GX9+F7n2xXKEX5C7VdyXITbAW2RomwXt3guud4KwGhkAGuGDPK7Wi20EoCg==
+  dependencies:
+    "@babel/runtime" "^7.29.2"
+    "@mui/utils" "9.0.0"
+    reselect "^5.1.1"
+    use-sync-external-store "^1.6.0"
 
 "@mui/x-internals@8.26.0":
   version "8.26.0"
@@ -1260,6 +1302,11 @@ data-view-byte-offset@^1.0.1:
     call-bound "^1.0.2"
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
+
+dayjs@^1.11.20:
+  version "1.11.20"
+  resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.20.tgz"
+  integrity sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==
 
 debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2:
   version "4.4.3"
@@ -2639,7 +2686,7 @@ react-is@^18.2.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react-is@^19.0.0, react-is@^19.2.3:
+react-is@^19.0.0, react-is@^19.2.3, react-is@^19.2.4:
   version "19.2.5"
   resolved "https://registry.npmjs.org/react-is/-/react-is-19.2.5.tgz"
   integrity sha512-Dn0t8IQhCmeIT3wu+Apm1/YVsJXsGWi6k4sPdnBIdqMVtHtv0IGi6dcpNpNkNac0zB2uUAqNX3MHzN8c+z2rwQ==

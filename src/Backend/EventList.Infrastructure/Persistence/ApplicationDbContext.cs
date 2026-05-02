@@ -16,6 +16,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Event> Events => Set<Event>();
     public DbSet<Guest> Guests => Set<Guest>();
     public DbSet<Invitation> Invitations => Set<Invitation>();
+    public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<InvitationTemplate> InvitationTemplates => Set<InvitationTemplate>();
     public DbSet<Person> People => Set<Person>();
     public DbSet<UserEntitlement> UserEntitlements => Set<UserEntitlement>();
@@ -115,6 +116,17 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
                 .WithMany()
                 .HasForeignKey(x => x.OwnerUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<EmailTemplate>(entity =>
+        {
+            entity.ToTable("EmailTemplates");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Type).HasConversion<string>().HasMaxLength(64).IsRequired();
+            entity.Property(x => x.Language).HasMaxLength(16).IsRequired();
+            entity.Property(x => x.Subject).HasMaxLength(256).IsRequired();
+            entity.Property(x => x.Body).HasMaxLength(12000).IsRequired();
+            entity.HasIndex(x => new { x.Type, x.Language }).IsUnique();
         });
 
             modelBuilder.Entity<Person>(entity =>

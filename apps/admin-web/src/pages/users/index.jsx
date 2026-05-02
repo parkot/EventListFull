@@ -24,8 +24,10 @@ import Typography from '@mui/material/Typography';
 
 // project imports
 import MainCard from 'components/MainCard';
+import GreekTableHeadCell from 'components/GreekTableHeadCell';
 import { apiRequest, getApiBaseUrl } from 'utils/api';
 import { getAuthSession } from 'utils/auth';
+import { useTranslation } from 'react-i18next';
 
 const roleOptions = ['FreeUser', 'PremiumUser', 'Administrator'];
 const preferredLanguageOptions = [
@@ -141,6 +143,7 @@ function emptyUserForm(defaultTimeZone) {
 export default function UsersPage() {
   const session = getAuthSession();
   const isAdministrator = session?.user?.role === 'Administrator';
+  const { t } = useTranslation();
   const defaultTimeZone = useMemo(() => session?.user?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', [session]);
   const timeZoneOptions = useMemo(() => getAllTimeZones().map(mapTimeZoneOption), []);
 
@@ -160,8 +163,8 @@ export default function UsersPage() {
   const [viewUser, setViewUser] = useState(null);
 
   const apiUnavailableMessage = useMemo(
-    () => `Cannot reach backend API at ${getApiBaseUrl()}. Start API with: dotnet run --project src/Backend/EventList.Api`,
-    []
+    () => t('usersPage.errors.backendUnavailable', { baseUrl: getApiBaseUrl() }),
+    [t]
   );
 
   const loadUsers = useCallback(async () => {
@@ -176,13 +179,13 @@ export default function UsersPage() {
     try {
       const response = await apiRequest('/api/admin/users/');
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to load users.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('usersPage.errors.load')));
       }
 
       const data = await response.json();
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Failed to load users.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('usersPage.errors.load'), apiUnavailableMessage));
     } finally {
       setIsLoading(false);
     }
@@ -230,14 +233,14 @@ export default function UsersPage() {
     try {
       const response = await apiRequest(`/api/admin/users/${userId}`);
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to load user details.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('usersPage.errors.loadDetails')));
       }
 
       const data = await response.json();
       setViewUser(data);
       setIsViewOpen(true);
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Failed to load user details.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('usersPage.errors.loadDetails'), apiUnavailableMessage));
     }
   };
 
@@ -253,7 +256,12 @@ export default function UsersPage() {
     const email = createForm.email.trim();
     const password = createForm.password;
     if (!email || !password) {
-      setErrorMessage('Email and password are required.');
+      setErrorMessage(t('usersPage.errors.emailPasswordRequired'));
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorMessage(t('usersPage.errors.invalidEmail'));
       return;
     }
 
@@ -270,14 +278,14 @@ export default function UsersPage() {
       });
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to create user.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('usersPage.errors.create')));
       }
 
       await loadUsers();
-      setSuccessMessage('User created successfully.');
+      setSuccessMessage(t('usersPage.success.created'));
       closeCreate();
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Failed to create user.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('usersPage.errors.create'), apiUnavailableMessage));
     }
   };
 
@@ -291,7 +299,12 @@ export default function UsersPage() {
 
     const email = editForm.email.trim();
     if (!email) {
-      setErrorMessage('Email is required.');
+      setErrorMessage(t('usersPage.errors.emailRequired'));
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorMessage(t('usersPage.errors.invalidEmail'));
       return;
     }
 
@@ -308,31 +321,31 @@ export default function UsersPage() {
       });
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to update user.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('usersPage.errors.update')));
       }
 
       await loadUsers();
-      setSuccessMessage('User updated successfully.');
+      setSuccessMessage(t('usersPage.success.updated'));
       closeEdit();
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Failed to update user.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('usersPage.errors.update'), apiUnavailableMessage));
     }
   };
 
   if (!isAdministrator) {
     return (
-      <MainCard title="Users">
-        <Alert severity="warning">This page is available only for administrators.</Alert>
+      <MainCard title={t('usersPage.title')}>
+        <Alert severity="warning">{t('usersPage.adminOnly')}</Alert>
       </MainCard>
     );
   }
 
   return (
     <MainCard
-      title="Users"
+      title={t('usersPage.title')}
       secondary={
         <Button variant="contained" onClick={openCreate}>
-          Create User
+          {t('usersPage.createUser')}
         </Button>
       }
     >
@@ -344,14 +357,14 @@ export default function UsersPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Action</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Language</TableCell>
-                <TableCell>Time Zone</TableCell>
-                <TableCell>Email Confirmed</TableCell>
-                <TableCell>Created</TableCell>
-                <TableCell>Last Login</TableCell>
+                <GreekTableHeadCell>{t('usersPage.table.action')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.email')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.role')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.language')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.timeZone')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.emailConfirmed')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.created')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('usersPage.table.lastLogin')}</GreekTableHeadCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -359,7 +372,7 @@ export default function UsersPage() {
                 <TableRow>
                   <TableCell colSpan={8}>
                     <Typography variant="body2" color="text.secondary">
-                      Loading users...
+                      {t('usersPage.loading')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -367,7 +380,7 @@ export default function UsersPage() {
                 <TableRow>
                   <TableCell colSpan={8}>
                     <Typography variant="body2" color="text.secondary">
-                      No users found.
+                      {t('usersPage.noUsers')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -377,10 +390,10 @@ export default function UsersPage() {
                     <TableCell>
                       <Stack direction="row" spacing={1}>
                         <Button size="small" variant="outlined" onClick={() => openView(user.id)}>
-                          View
+                          {t('usersPage.view')}
                         </Button>
                         <Button size="small" variant="outlined" onClick={() => openEdit(user)}>
-                          Edit
+                          {t('usersPage.edit')}
                         </Button>
                       </Stack>
                     </TableCell>
@@ -388,7 +401,7 @@ export default function UsersPage() {
                     <TableCell>{user.role}</TableCell>
                     <TableCell>{getPreferredLanguageLabel(user.preferredLanguage)}</TableCell>
                     <TableCell>{getTimeZoneLabel(user.timeZone, timeZoneOptions)}</TableCell>
-                    <TableCell>{user.emailConfirmed ? 'Yes' : 'No'}</TableCell>
+                    <TableCell>{user.emailConfirmed ? t('usersPage.yes') : t('usersPage.no')}</TableCell>
                     <TableCell>{formatDate(user.createdAtUtc, defaultTimeZone)}</TableCell>
                     <TableCell>{formatDate(user.lastLoginAtUtc, defaultTimeZone)}</TableCell>
                   </TableRow>
@@ -400,26 +413,28 @@ export default function UsersPage() {
       </Stack>
 
       <Dialog open={isCreateOpen} onClose={closeCreate} fullWidth maxWidth="sm">
-        <DialogTitle>Create User</DialogTitle>
+        <DialogTitle>{t('usersPage.createDialog.title')}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="Email"
+              label={t('usersPage.createDialog.emailLabel')}
               type="email"
               value={createForm.email}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, email: event.target.value }))}
               required
               autoFocus
+              error={Boolean(createForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createForm.email.trim()))}
+              helperText={createForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createForm.email.trim()) ? t('usersPage.errors.invalidEmail') : ''}
             />
             <TextField
-              label="Password"
+              label={t('usersPage.createDialog.passwordLabel')}
               type="password"
               value={createForm.password}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, password: event.target.value }))}
               required
             />
             <TextField
-              label="Role"
+              label={t('usersPage.createDialog.roleLabel')}
               select
               value={createForm.role}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, role: event.target.value }))}
@@ -431,7 +446,7 @@ export default function UsersPage() {
               ))}
             </TextField>
             <TextField
-              label="Preferred Language"
+              label={t('usersPage.createDialog.preferredLanguageLabel')}
               select
               value={createForm.preferredLanguage}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, preferredLanguage: event.target.value }))}
@@ -448,34 +463,36 @@ export default function UsersPage() {
               onChange={(_, newValue) => setCreateForm((previous) => ({ ...previous, timeZone: newValue?.value || defaultTimeZone }))}
               getOptionLabel={(option) => option.label}
               isOptionEqualToValue={(option, value) => option.value === value.value}
-              renderInput={(params) => <TextField {...params} label="Time Zone" />}
+              renderInput={(params) => <TextField {...params} label={t('usersPage.createDialog.timeZoneLabel')} />}
               fullWidth
               autoHighlight
             />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeCreate}>Cancel</Button>
+          <Button onClick={closeCreate}>{t('usersPage.createDialog.cancel')}</Button>
           <Button variant="contained" onClick={createUser}>
-            Create
+            {t('usersPage.createDialog.create')}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={isEditOpen} onClose={closeEdit} fullWidth maxWidth="sm">
-        <DialogTitle>Edit User</DialogTitle>
+        <DialogTitle>{t('usersPage.editDialog.title')}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="Email"
+              label={t('usersPage.editDialog.emailLabel')}
               type="email"
               value={editForm.email}
               onChange={(event) => setEditForm((previous) => ({ ...previous, email: event.target.value }))}
               required
               autoFocus
+              error={Boolean(editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim()))}
+              helperText={editForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim()) ? t('usersPage.errors.invalidEmail') : ''}
             />
             <TextField
-              label="Role"
+              label={t('usersPage.editDialog.roleLabel')}
               select
               value={editForm.role}
               onChange={(event) => setEditForm((previous) => ({ ...previous, role: event.target.value }))}
@@ -487,7 +504,7 @@ export default function UsersPage() {
               ))}
             </TextField>
             <TextField
-              label="Preferred Language"
+              label={t('usersPage.editDialog.preferredLanguageLabel')}
               select
               value={editForm.preferredLanguage}
               onChange={(event) => setEditForm((previous) => ({ ...previous, preferredLanguage: event.target.value }))}
@@ -504,7 +521,7 @@ export default function UsersPage() {
               onChange={(_, newValue) => setEditForm((previous) => ({ ...previous, timeZone: newValue?.value || defaultTimeZone }))}
               getOptionLabel={(option) => option.label}
               isOptionEqualToValue={(option, value) => option.value === value.value}
-              renderInput={(params) => <TextField {...params} label="Time Zone" />}
+              renderInput={(params) => <TextField {...params} label={t('usersPage.editDialog.timeZoneLabel')} />}
               fullWidth
               autoHighlight
             />
@@ -515,57 +532,57 @@ export default function UsersPage() {
                   onChange={(event) => setEditForm((previous) => ({ ...previous, emailConfirmed: event.target.checked }))}
                 />
               }
-              label="Email Confirmed"
+              label={t('usersPage.editDialog.emailConfirmedLabel')}
             />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeEdit}>Cancel</Button>
+          <Button onClick={closeEdit}>{t('usersPage.editDialog.cancel')}</Button>
           <Button variant="contained" onClick={updateUser}>
-            Save
+            {t('usersPage.editDialog.save')}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={isViewOpen} onClose={closeView} fullWidth maxWidth="sm">
-        <DialogTitle>User Details</DialogTitle>
+        <DialogTitle>{t('usersPage.viewDialog.title')}</DialogTitle>
         <DialogContent>
           {viewUser ? (
             <Stack spacing={1.5} sx={{ mt: 1 }}>
               <Typography variant="body2">
-                <strong>Email:</strong> {viewUser.email}
+                <strong>{t('usersPage.viewDialog.email')}:</strong> {viewUser.email}
               </Typography>
               <Typography variant="body2">
-                <strong>Role:</strong> {viewUser.role}
+                <strong>{t('usersPage.viewDialog.role')}:</strong> {viewUser.role}
               </Typography>
               <Typography variant="body2">
-                <strong>Preferred Language:</strong> {getPreferredLanguageLabel(viewUser.preferredLanguage)}
+                <strong>{t('usersPage.viewDialog.preferredLanguage')}:</strong> {getPreferredLanguageLabel(viewUser.preferredLanguage)}
               </Typography>
               <Typography variant="body2">
-                <strong>Time Zone:</strong> {getTimeZoneLabel(viewUser.timeZone, timeZoneOptions)}
+                <strong>{t('usersPage.viewDialog.timeZone')}:</strong> {getTimeZoneLabel(viewUser.timeZone, timeZoneOptions)}
               </Typography>
               <Typography variant="body2">
-                <strong>Email Confirmed:</strong> {viewUser.emailConfirmed ? 'Yes' : 'No'}
+                <strong>{t('usersPage.viewDialog.emailConfirmed')}:</strong> {viewUser.emailConfirmed ? t('usersPage.yes') : t('usersPage.no')}
               </Typography>
               <Typography variant="body2">
-                <strong>Created:</strong> {formatDate(viewUser.createdAtUtc, defaultTimeZone)}
+                <strong>{t('usersPage.viewDialog.created')}:</strong> {formatDate(viewUser.createdAtUtc, defaultTimeZone)}
               </Typography>
               <Typography variant="body2">
-                <strong>Last Login:</strong> {formatDate(viewUser.lastLoginAtUtc, defaultTimeZone)}
+                <strong>{t('usersPage.viewDialog.lastLogin')}:</strong> {formatDate(viewUser.lastLoginAtUtc, defaultTimeZone)}
               </Typography>
               <Typography variant="body2">
-                <strong>User Id:</strong> {viewUser.id}
+                <strong>{t('usersPage.viewDialog.userId')}:</strong> {viewUser.id}
               </Typography>
             </Stack>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              Loading user details...
+              {t('usersPage.viewDialog.loadingDetails')}
             </Typography>
           )}
         </DialogContent>
         <DialogActions>
           <Box>
-            <Button onClick={closeView}>Close</Button>
+            <Button onClick={closeView}>{t('usersPage.viewDialog.close')}</Button>
           </Box>
         </DialogActions>
       </Dialog>

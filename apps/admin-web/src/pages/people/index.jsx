@@ -20,9 +20,11 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 // project imports
+import GreekTableHeadCell from 'components/GreekTableHeadCell';
 import MainCard from 'components/MainCard';
 import { apiRequest, getApiBaseUrl } from 'utils/api';
 import { getAuthSession, updateAuthSession } from 'utils/auth';
+import { useTranslation } from 'react-i18next';
 
 function normalizeAvailability(value) {
   if (value === undefined || value === null) {
@@ -90,6 +92,7 @@ function resolveUserTimeZone(value, fallback) {
 
 export default function PeoplePage() {
   const fallbackTimeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', []);
+  const { t } = useTranslation();
   const [people, setPeople] = useState([]);
   const [archivedPeople, setArchivedPeople] = useState([]);
   const [activeView, setActiveView] = useState('active');
@@ -108,8 +111,8 @@ export default function PeoplePage() {
   const fileInputRef = useRef(null);
 
   const apiUnavailableMessage = useMemo(
-    () => `Cannot reach backend API at ${getApiBaseUrl()}. Start API with: dotnet run --project src/Backend/EventList.Api`,
-    []
+    () => t('peoplePage.errors.backendUnavailable', { baseUrl: getApiBaseUrl() }),
+    [t]
   );
 
   useEffect(() => {
@@ -156,13 +159,13 @@ export default function PeoplePage() {
       const response = await apiRequest('/api/people/');
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Unable to load people right now.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('peoplePage.errors.load')));
       }
 
       const data = await response.json();
       setPeople(Array.isArray(data) ? data : []);
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Unable to load people right now.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('peoplePage.errors.load'), apiUnavailableMessage));
     } finally {
       setIsLoading(false);
     }
@@ -173,13 +176,13 @@ export default function PeoplePage() {
       const response = await apiRequest('/api/people/archived');
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Unable to load archived people right now.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('peoplePage.errors.loadArchived')));
       }
 
       const data = await response.json();
       setArchivedPeople(Array.isArray(data) ? data : []);
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Unable to load archived people right now.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('peoplePage.errors.loadArchived'), apiUnavailableMessage));
     }
   }, [apiUnavailableMessage]);
 
@@ -227,7 +230,7 @@ export default function PeoplePage() {
     setErrorMessage('');
     setSuccessMessage('');
 
-    const shouldDelete = window.confirm(`Archive ${person.fullName}?`);
+    const shouldDelete = window.confirm(t('peoplePage.confirmArchive', { name: person.fullName }));
     if (!shouldDelete) {
       return;
     }
@@ -238,13 +241,13 @@ export default function PeoplePage() {
       });
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to archive person.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('peoplePage.errors.archive')));
       }
 
       await reloadPeopleLists();
-      setSuccessMessage('Person archived successfully.');
+      setSuccessMessage(t('peoplePage.success.archived'));
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Failed to archive person.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('peoplePage.errors.archive'), apiUnavailableMessage));
     }
   };
 
@@ -252,7 +255,7 @@ export default function PeoplePage() {
     setErrorMessage('');
     setSuccessMessage('');
 
-    const shouldRestore = window.confirm(`Restore ${person.fullName}?`);
+    const shouldRestore = window.confirm(t('peoplePage.confirmRestore', { name: person.fullName }));
     if (!shouldRestore) {
       return;
     }
@@ -263,13 +266,13 @@ export default function PeoplePage() {
       });
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, 'Failed to restore person.'));
+        throw new Error(await getErrorMessageFromResponse(response, t('peoplePage.errors.restore')));
       }
 
       await reloadPeopleLists();
-      setSuccessMessage('Person restored successfully.');
+      setSuccessMessage(t('peoplePage.success.restored'));
     } catch (error) {
-      setErrorMessage(toFriendlyRequestError(error, 'Failed to restore person.', apiUnavailableMessage));
+      setErrorMessage(toFriendlyRequestError(error, t('peoplePage.errors.restore'), apiUnavailableMessage));
     }
   };
 
@@ -281,7 +284,12 @@ export default function PeoplePage() {
     const email = createForm.email.trim();
 
     if (!fullName || !email) {
-      setErrorMessage('Full name and email are required.');
+      setErrorMessage(t('peoplePage.errors.fullNameEmailRequired'));
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorMessage(t('peoplePage.errors.invalidEmail'));
       return;
     }
 
@@ -299,15 +307,15 @@ export default function PeoplePage() {
       });
 
       if (!response.ok) {
-        throw new Error(await getErrorMessageFromResponse(response, editingPersonId ? 'Failed to update person.' : 'Failed to create person.'));
+        throw new Error(await getErrorMessageFromResponse(response, editingPersonId ? t('peoplePage.errors.update') : t('peoplePage.errors.create')));
       }
 
       await reloadPeopleLists();
-      setSuccessMessage(editingPersonId ? 'Person updated successfully.' : 'Person created successfully.');
+      setSuccessMessage(editingPersonId ? t('peoplePage.success.updated') : t('peoplePage.success.created'));
       closeCreateDialog();
     } catch (error) {
       setErrorMessage(
-        toFriendlyRequestError(error, editingPersonId ? 'Failed to update person.' : 'Failed to create person.', apiUnavailableMessage)
+        toFriendlyRequestError(error, editingPersonId ? t('peoplePage.errors.update') : t('peoplePage.errors.create'), apiUnavailableMessage)
       );
     }
   };
@@ -330,7 +338,7 @@ export default function PeoplePage() {
       const excelRows = toExcelRows(fileBuffer);
 
       if (excelRows.length === 0) {
-        setErrorMessage('The selected Excel file is empty.');
+        setErrorMessage(t('peoplePage.errors.emptyFile'));
         return;
       }
 
@@ -368,7 +376,7 @@ export default function PeoplePage() {
         });
 
         if (!response.ok) {
-          throw new Error(await getErrorMessageFromResponse(response, 'Failed to import people from Excel.'));
+          throw new Error(await getErrorMessageFromResponse(response, t('peoplePage.errors.importApiError')));
         }
 
         if (existingPerson) {
@@ -380,10 +388,10 @@ export default function PeoplePage() {
 
       await reloadPeopleLists();
 
-      setSuccessMessage(`Excel import complete. Added ${importedCount}, updated ${updatedCount}.`);
+      setSuccessMessage(t('peoplePage.success.importComplete', { added: importedCount, updated: updatedCount }));
     } catch (error) {
       setErrorMessage(
-        toFriendlyRequestError(error, 'Could not import this file. Please upload a valid .xlsx or .xls file.', apiUnavailableMessage)
+        toFriendlyRequestError(error, t('peoplePage.errors.importFailed'), apiUnavailableMessage)
       );
     } finally {
       event.target.value = '';
@@ -396,14 +404,14 @@ export default function PeoplePage() {
 
   return (
     <MainCard
-      title="People"
+      title={t('peoplePage.title')}
       secondary={
         <Stack direction="row" spacing={1}>
           <Button variant="outlined" onClick={triggerImport}>
-            Import Availability (Excel)
+            {t('peoplePage.importAvailability')}
           </Button>
           <Button variant="contained" onClick={openCreateDialog}>
-            Create Person
+            {t('peoplePage.createPerson')}
           </Button>
         </Stack>
       }
@@ -414,10 +422,10 @@ export default function PeoplePage() {
 
         <Stack direction="row" spacing={1}>
           <Button variant={activeView === 'active' ? 'contained' : 'outlined'} onClick={() => setActiveView('active')}>
-            Active ({people.length})
+            {t('peoplePage.active')} ({people.length})
           </Button>
           <Button variant={activeView === 'archived' ? 'contained' : 'outlined'} onClick={() => setActiveView('archived')}>
-            Archived ({archivedPeople.length})
+            {t('peoplePage.archived')} ({archivedPeople.length})
           </Button>
         </Stack>
 
@@ -431,12 +439,12 @@ export default function PeoplePage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Action</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Availability</TableCell>
-                {isArchivedView && <TableCell>Archived At</TableCell>}
+                <GreekTableHeadCell>{t('peoplePage.table.action')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('peoplePage.table.fullName')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('peoplePage.table.email')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('peoplePage.table.phone')}</GreekTableHeadCell>
+                <GreekTableHeadCell>{t('peoplePage.table.availability')}</GreekTableHeadCell>
+                {isArchivedView && <GreekTableHeadCell>{t('peoplePage.table.archivedAt')}</GreekTableHeadCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -444,7 +452,7 @@ export default function PeoplePage() {
                 <TableRow>
                   <TableCell colSpan={tableColumnCount}>
                     <Typography variant="body2" color="text.secondary">
-                      Loading {activeView} people...
+                      {t('peoplePage.loading', { view: activeView })}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -453,8 +461,8 @@ export default function PeoplePage() {
                   <TableCell colSpan={tableColumnCount}>
                     <Typography variant="body2" color="text.secondary">
                       {activeView === 'archived'
-                        ? 'No archived people yet.'
-                        : 'No people yet. Create one person or import availability from an Excel file.'}
+                        ? t('peoplePage.noArchivedPeople')
+                        : t('peoplePage.noPeople')}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -465,15 +473,15 @@ export default function PeoplePage() {
                       <Stack direction="row" spacing={1}>
                         {activeView === 'archived' ? (
                           <Button size="small" color="success" variant="outlined" onClick={() => handleRestorePerson(person)}>
-                            Restore
+                            {t('peoplePage.restore')}
                           </Button>
                         ) : (
                           <>
                             <Button size="small" variant="outlined" onClick={() => openEditDialog(person)}>
-                              Edit
+                              {t('peoplePage.edit')}
                             </Button>
                             <Button size="small" color="error" variant="outlined" onClick={() => handleDeletePerson(person)}>
-                              Archive
+                              {t('peoplePage.archive')}
                             </Button>
                           </>
                         )}
@@ -501,41 +509,43 @@ export default function PeoplePage() {
       />
 
       <Dialog open={isCreateDialogOpen} onClose={closeCreateDialog} fullWidth maxWidth="sm">
-        <DialogTitle>{editingPersonId ? 'Edit Person' : 'Create Person'}</DialogTitle>
+        <DialogTitle>{editingPersonId ? t('peoplePage.dialog.editTitle') : t('peoplePage.dialog.createTitle')}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="Full Name"
+              label={t('peoplePage.dialog.fullNameLabel')}
               value={createForm.fullName}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, fullName: event.target.value }))}
               required
               autoFocus
             />
             <TextField
-              label="Email"
+              label={t('peoplePage.dialog.emailLabel')}
               type="email"
               value={createForm.email}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, email: event.target.value }))}
               required
+              error={Boolean(createForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createForm.email.trim()))}
+              helperText={createForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createForm.email.trim()) ? t('peoplePage.errors.invalidEmail') : ''}
             />
             <TextField
-              label="Phone"
+              label={t('peoplePage.dialog.phoneLabel')}
               value={createForm.phone}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, phone: event.target.value }))}
             />
             <TextField
-              label="Availability"
+              label={t('peoplePage.dialog.availabilityLabel')}
               value={createForm.availability}
               onChange={(event) => setCreateForm((previous) => ({ ...previous, availability: event.target.value }))}
-              placeholder="Example: Mon-Fri 09:00-18:00"
+              placeholder={t('peoplePage.dialog.availabilityPlaceholder')}
             />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeCreateDialog}>Cancel</Button>
+          <Button onClick={closeCreateDialog}>{t('peoplePage.dialog.cancel')}</Button>
           <Box>
             <Button onClick={handleSavePerson} variant="contained" disabled={!canCreate}>
-              {editingPersonId ? 'Save' : 'Create'}
+              {editingPersonId ? t('peoplePage.dialog.save') : t('peoplePage.dialog.create')}
             </Button>
           </Box>
         </DialogActions>

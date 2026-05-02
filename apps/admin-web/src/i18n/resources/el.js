@@ -21,6 +21,7 @@ const el = {
     people: 'Άτομα',
     administrators: 'Διαχειριστές',
     users: 'Χρήστες',
+    emailTemplates: 'Πρότυπα email',
     authentication: 'Αυθεντικοποίηση',
     login: 'Σύνδεση',
     register: 'Εγγραφή',
@@ -206,7 +207,21 @@ const el = {
       agreeText: 'Με την εγγραφή σας αποδέχεστε τους',
       termsOfService: 'Όρους χρήσης',
       privacyPolicy: 'Πολιτική απορρήτου',
-      button: 'Δημιουργία λογαριασμού'
+      button: 'Δημιουργία λογαριασμού',
+      unableToRegister: 'Αδυναμία δημιουργίας λογαριασμού αυτή τη στιγμή. Προσπαθήστε ξανά.',
+      emailAlreadyExists: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Παρακαλώ συνδεθείτε.',
+      goToLogin: 'Μετάβαση στη Σύνδεση',
+      successToast: 'Ο λογαριασμός δημιουργήθηκε. Ανακατεύθυνση...',
+      welcome: {
+        defaultName: 'φίλε',
+        title: 'Καλώς ήρθες, {{firstName}}',
+        instructions: {
+          line1: 'Ο λογαριασμός σου είναι έτοιμος και μπορείς να ξεκινήσεις τη διοργάνωση εκδηλώσεων.',
+          line2: 'Χρησιμοποίησε τον πίνακα για δημιουργία εκδηλώσεων, διαχείριση καλεσμένων και παρακολούθηση απαντήσεων.',
+          line3: 'Αν είναι η πρώτη σου επίσκεψη, ξεκίνα από την αρχική εικόνα του πίνακα.'
+        },
+        goToDashboard: 'Μετάβαση Στον Πίνακα Διαχείρισης'
+      }
     },
     validation: {
       mustBeValidEmail: 'Πρέπει να είναι έγκυρο email',
@@ -217,6 +232,181 @@ const el = {
       passwordTooLongRegister: 'Ο κωδικός πρέπει να έχει λιγότερους από 10 χαρακτήρες',
       firstNameRequired: 'Το όνομα είναι υποχρεωτικό',
       lastNameRequired: 'Το επώνυμο είναι υποχρεωτικό'
+    }
+  },
+  emailTemplates: {
+    title: 'Πρότυπα email',
+    newTemplate: 'Νέο πρότυπο',
+    adminOnly: 'Αυτή η σελίδα είναι διαθέσιμη μόνο σε διαχειριστές.',
+    sendTestEmail: 'Αποστολή δοκιμαστικού email',
+    filterByType: 'Φιλτράρισμα ανά τύπο',
+    filterByLanguage: 'Φιλτράρισμα ανά γλώσσα',
+    all: 'Όλα',
+    search: 'Αναζήτηση',
+    searchPlaceholder: 'Τύπος, θέμα, κείμενο',
+    loading: 'Φόρτωση προτύπων...',
+    noTemplates: 'Δεν υπάρχουν πρότυπα που να ταιριάζουν με τα τρέχοντα φίλτρα.',
+    edit: 'Επεξεργασία',
+    table: {
+      action: 'Ενέργεια',
+      type: 'Τύπος',
+      language: 'Γλώσσα',
+      subject: 'Θέμα'
+    },
+    dialog: {
+      saveTitle: 'Αποθήκευση προτύπου email',
+      testTitle: 'Αποστολή δοκιμαστικού email',
+      typeLabel: 'Τύπος',
+      languageLabel: 'Γλώσσα',
+      languageHelper: 'Επιλέξτε γλώσσα προτύπου',
+      subjectLabel: 'Θέμα',
+      bodyLabel: 'Κείμενο (HTML)',
+      bodyHelper: 'Υποστηριζόμενοι δείκτες θέσης: {{Email}}, {{Token}}, {{ConfirmationLink}}, {{ResetLink}}, {{EventTitle}}, {{EventDate}}, {{EventLink}}',
+      livePreview: 'Ζωντανή προεπισκόπηση',
+      previewCaption: 'Η προεπισκόπηση χρησιμοποιεί δείγματα τιμών για επαλήθευση των δεικτών πριν την αποθήκευση.',
+      toEmailLabel: 'Προς (email)',
+      templateTypeLabel: 'Τύπος προτύπου',
+      testLanguageHelper: 'Επιλέξτε την έκδοση γλώσσας του προτύπου για αποστολή',
+      cancel: 'Ακύρωση',
+      save: 'Αποθήκευση',
+      send: 'Αποστολή'
+    },
+    success: {
+      saved: 'Το πρότυπο email αποθηκεύτηκε με επιτυχία.',
+      testSent: 'Το δοκιμαστικό email στάλθηκε στο {{toEmail}}.'
+    },
+    errors: {
+      backendUnavailable: 'Δεν είναι δυνατή η πρόσβαση στο API στο {{baseUrl}}. Εκκινήστε το API με: dotnet run --project src/Backend/EventList.Api',
+      load: 'Αποτυχία φόρτωσης προτύπων email.',
+      save: 'Αποτυχία αποθήκευσης προτύπου email.',
+      sendTest: 'Αποτυχία αποστολής δοκιμαστικού email.',
+      subjectBodyRequired: 'Το θέμα και το κείμενο είναι υποχρεωτικά.',
+      recipientRequired: 'Το email παραλήπτη είναι υποχρεωτικό.',
+      invalidEmail: 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email.'
+    }
+  },
+  usersPage: {
+    title: 'Χρήστες',
+    createUser: 'Δημιουργία χρήστη',
+    adminOnly: 'Αυτή η σελίδα είναι διαθέσιμη μόνο σε διαχειριστές.',
+    loading: 'Φόρτωση χρηστών...',
+    noUsers: 'Δεν βρέθηκαν χρήστες.',
+    view: 'Προβολή',
+    edit: 'Επεξεργασία',
+    yes: 'Ναι',
+    no: 'Όχι',
+    table: {
+      action: 'Ενέργεια',
+      email: 'Email',
+      role: 'Ρόλος',
+      language: 'Γλώσσα',
+      timeZone: 'Ζώνη ώρας',
+      emailConfirmed: 'Email επιβεβαιωμένο',
+      created: 'Δημιουργήθηκε',
+      lastLogin: 'Τελευταία σύνδεση'
+    },
+    createDialog: {
+      title: 'Δημιουργία χρήστη',
+      emailLabel: 'Email',
+      passwordLabel: 'Κωδικός',
+      roleLabel: 'Ρόλος',
+      preferredLanguageLabel: 'Προτιμώμενη γλώσσα',
+      timeZoneLabel: 'Ζώνη ώρας',
+      cancel: 'Ακύρωση',
+      create: 'Δημιουργία'
+    },
+    editDialog: {
+      title: 'Επεξεργασία χρήστη',
+      emailLabel: 'Email',
+      roleLabel: 'Ρόλος',
+      preferredLanguageLabel: 'Προτιμώμενη γλώσσα',
+      timeZoneLabel: 'Ζώνη ώρας',
+      emailConfirmedLabel: 'Email επιβεβαιωμένο',
+      cancel: 'Ακύρωση',
+      save: 'Αποθήκευση'
+    },
+    viewDialog: {
+      title: 'Στοιχεία χρήστη',
+      email: 'Email',
+      role: 'Ρόλος',
+      preferredLanguage: 'Προτιμώμενη γλώσσα',
+      timeZone: 'Ζώνη ώρας',
+      emailConfirmed: 'Email επιβεβαιωμένο',
+      created: 'Δημιουργήθηκε',
+      lastLogin: 'Τελευταία σύνδεση',
+      userId: 'ID χρήστη',
+      loadingDetails: 'Φόρτωση στοιχείων χρήστη...',
+      close: 'Κλείσιμο'
+    },
+    success: {
+      created: 'Ο χρήστης δημιουργήθηκε με επιτυχία.',
+      updated: 'Ο χρήστης ενημερώθηκε με επιτυχία.'
+    },
+    errors: {
+      backendUnavailable: 'Δεν είναι δυνατή η πρόσβαση στο API στο {{baseUrl}}. Εκκινήστε το API με: dotnet run --project src/Backend/EventList.Api',
+      load: 'Αποτυχία φόρτωσης χρηστών.',
+      create: 'Αποτυχία δημιουργίας χρήστη.',
+      update: 'Αποτυχία ενημέρωσης χρήστη.',
+      loadDetails: 'Αποτυχία φόρτωσης στοιχείων χρήστη.',
+      emailPasswordRequired: 'Το email και ο κωδικός είναι υποχρεωτικά.',
+      emailRequired: 'Το email είναι υποχρεωτικό.',
+      invalidEmail: 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email.'
+    }
+  },
+  peoplePage: {
+    title: 'Άτομα',
+    importAvailability: 'Εισαγωγή διαθεσιμότητας (Excel)',
+    createPerson: 'Δημιουργία ατόμου',
+    active: 'Ενεργά',
+    archived: 'Αρχειοθετημένα',
+    loading: 'Φόρτωση {{view}} ατόμων...',
+    noArchivedPeople: 'Δεν υπάρχουν αρχειοθετημένα άτομα ακόμα.',
+    noPeople: 'Δεν υπάρχουν άτομα ακόμα. Δημιουργήστε ένα άτομο ή εισάγετε διαθεσιμότητα από αρχείο Excel.',
+    edit: 'Επεξεργασία',
+    archive: 'Αρχειοθέτηση',
+    restore: 'Επαναφορά',
+    table: {
+      action: 'Ενέργεια',
+      fullName: 'Πλήρες όνομα',
+      email: 'Email',
+      phone: 'Τηλέφωνο',
+      availability: 'Διαθεσιμότητα',
+      archivedAt: 'Αρχειοθετήθηκε'
+    },
+    dialog: {
+      createTitle: 'Δημιουργία ατόμου',
+      editTitle: 'Επεξεργασία ατόμου',
+      fullNameLabel: 'Πλήρες όνομα',
+      emailLabel: 'Email',
+      phoneLabel: 'Τηλέφωνο',
+      availabilityLabel: 'Διαθεσιμότητα',
+      availabilityPlaceholder: 'Παράδειγμα: Δευ-Παρ 09:00-18:00',
+      cancel: 'Ακύρωση',
+      save: 'Αποθήκευση',
+      create: 'Δημιουργία'
+    },
+    confirmArchive: 'Αρχειοθέτηση {{name}};',
+    confirmRestore: 'Επαναφορά {{name}};',
+    success: {
+      archived: 'Το άτομο αρχειοθετήθηκε με επιτυχία.',
+      restored: 'Το άτομο επαναφέρθηκε με επιτυχία.',
+      created: 'Το άτομο δημιουργήθηκε με επιτυχία.',
+      updated: 'Το άτομο ενημερώθηκε με επιτυχία.',
+      importComplete: 'Η εισαγωγή Excel ολοκληρώθηκε. Προστέθηκαν {{added}}, ενημερώθηκαν {{updated}}.'
+    },
+    errors: {
+      backendUnavailable: 'Δεν είναι δυνατή η πρόσβαση στο API στο {{baseUrl}}. Εκκινήστε το API με: dotnet run --project src/Backend/EventList.Api',
+      load: 'Αδύνατη η φόρτωση ατόμων αυτή τη στιγμή.',
+      loadArchived: 'Αδύνατη η φόρτωση αρχειοθετημένων ατόμων αυτή τη στιγμή.',
+      archive: 'Αποτυχία αρχειοθέτησης ατόμου.',
+      restore: 'Αποτυχία επαναφοράς ατόμου.',
+      create: 'Αποτυχία δημιουργίας ατόμου.',
+      update: 'Αποτυχία ενημέρωσης ατόμου.',
+      importFailed: 'Αδύνατη η εισαγωγή αυτού του αρχείου. Ανεβάστε έγκυρο αρχείο .xlsx ή .xls.',
+      importApiError: 'Αποτυχία εισαγωγής ατόμων από Excel.',
+      emptyFile: 'Το επιλεγμένο αρχείο Excel είναι κενό.',
+      fullNameEmailRequired: 'Το πλήρες όνομα και το email είναι υποχρεωτικά.',
+      invalidEmail: 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email.'
     }
   }
 };

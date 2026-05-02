@@ -21,6 +21,7 @@ const es = {
     people: 'Personas',
     administrators: 'Administradores',
     users: 'Usuarios',
+    emailTemplates: 'Plantillas de correo',
     authentication: 'Autenticacion',
     login: 'Iniciar sesion',
     register: 'Registrarse',
@@ -204,7 +205,21 @@ const es = {
       agreeText: 'Al registrarte, aceptas nuestros',
       termsOfService: 'Terminos de servicio',
       privacyPolicy: 'Politica de privacidad',
-      button: 'Crear cuenta'
+      button: 'Crear cuenta',
+      unableToRegister: 'No se puede crear tu cuenta ahora. Por favor intenta de nuevo.',
+      emailAlreadyExists: 'Ya existe una cuenta con este correo. Por favor inicia sesion.',
+      goToLogin: 'Ir a Iniciar sesion',
+      successToast: 'Cuenta creada correctamente. Redirigiendo...',
+      welcome: {
+        defaultName: 'amigo',
+        title: 'Bienvenido, {{firstName}}',
+        instructions: {
+          line1: 'Tu cuenta esta lista y ahora puedes comenzar a organizar eventos.',
+          line2: 'Usa el panel para crear eventos, gestionar invitados y seguir respuestas.',
+          line3: 'Si es tu primera visita, comienza con el panel principal.'
+        },
+        goToDashboard: 'Ir al Panel de Administracion'
+      }
     },
     validation: {
       mustBeValidEmail: 'Debe ser un correo valido',
@@ -215,6 +230,181 @@ const es = {
       passwordTooLongRegister: 'La contrasena debe tener menos de 10 caracteres',
       firstNameRequired: 'El nombre es obligatorio',
       lastNameRequired: 'El apellido es obligatorio'
+    }
+  },
+  emailTemplates: {
+    title: 'Plantillas de correo',
+    newTemplate: 'Nueva plantilla',
+    adminOnly: 'Esta página solo está disponible para administradores.',
+    sendTestEmail: 'Enviar correo de prueba',
+    filterByType: 'Filtrar por tipo',
+    filterByLanguage: 'Filtrar por idioma',
+    all: 'Todos',
+    search: 'Buscar',
+    searchPlaceholder: 'Tipo, asunto, cuerpo',
+    loading: 'Cargando plantillas...',
+    noTemplates: 'Ninguna plantilla coincide con los filtros actuales.',
+    edit: 'Editar',
+    table: {
+      action: 'Acción',
+      type: 'Tipo',
+      language: 'Idioma',
+      subject: 'Asunto'
+    },
+    dialog: {
+      saveTitle: 'Guardar plantilla de correo',
+      testTitle: 'Enviar correo de prueba',
+      typeLabel: 'Tipo',
+      languageLabel: 'Idioma',
+      languageHelper: 'Elige el idioma de la plantilla',
+      subjectLabel: 'Asunto',
+      bodyLabel: 'Cuerpo (HTML)',
+      bodyHelper: 'Marcadores compatibles: {{Email}}, {{Token}}, {{ConfirmationLink}}, {{ResetLink}}, {{EventTitle}}, {{EventDate}}, {{EventLink}}',
+      livePreview: 'Vista previa',
+      previewCaption: 'La vista previa usa valores de muestra para verificar los marcadores antes de guardar.',
+      toEmailLabel: 'Para (email)',
+      templateTypeLabel: 'Tipo de plantilla',
+      testLanguageHelper: 'Selecciona la versión de idioma de la plantilla a enviar',
+      cancel: 'Cancelar',
+      save: 'Guardar',
+      send: 'Enviar'
+    },
+    success: {
+      saved: 'Plantilla de correo guardada correctamente.',
+      testSent: 'Correo de prueba enviado a {{toEmail}}.'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API en {{baseUrl}}. Inicia la API con: dotnet run --project src/Backend/EventList.Api',
+      load: 'Error al cargar las plantillas de correo.',
+      save: 'Error al guardar la plantilla de correo.',
+      sendTest: 'Error al enviar el correo de prueba.',
+      subjectBodyRequired: 'El asunto y el cuerpo son obligatorios.',
+      recipientRequired: 'El correo del destinatario es obligatorio.',
+      invalidEmail: 'Por favor, introduce una dirección de correo válida.'
+    }
+  },
+  usersPage: {
+    title: 'Usuarios',
+    createUser: 'Crear usuario',
+    adminOnly: 'Esta página solo está disponible para administradores.',
+    loading: 'Cargando usuarios...',
+    noUsers: 'No se encontraron usuarios.',
+    view: 'Ver',
+    edit: 'Editar',
+    yes: 'Sí',
+    no: 'No',
+    table: {
+      action: 'Acción',
+      email: 'Correo',
+      role: 'Rol',
+      language: 'Idioma',
+      timeZone: 'Zona horaria',
+      emailConfirmed: 'Correo confirmado',
+      created: 'Creado',
+      lastLogin: 'Último acceso'
+    },
+    createDialog: {
+      title: 'Crear usuario',
+      emailLabel: 'Correo',
+      passwordLabel: 'Contraseña',
+      roleLabel: 'Rol',
+      preferredLanguageLabel: 'Idioma preferido',
+      timeZoneLabel: 'Zona horaria',
+      cancel: 'Cancelar',
+      create: 'Crear'
+    },
+    editDialog: {
+      title: 'Editar usuario',
+      emailLabel: 'Correo',
+      roleLabel: 'Rol',
+      preferredLanguageLabel: 'Idioma preferido',
+      timeZoneLabel: 'Zona horaria',
+      emailConfirmedLabel: 'Correo confirmado',
+      cancel: 'Cancelar',
+      save: 'Guardar'
+    },
+    viewDialog: {
+      title: 'Detalles del usuario',
+      email: 'Correo',
+      role: 'Rol',
+      preferredLanguage: 'Idioma preferido',
+      timeZone: 'Zona horaria',
+      emailConfirmed: 'Correo confirmado',
+      created: 'Creado',
+      lastLogin: 'Último acceso',
+      userId: 'ID de usuario',
+      loadingDetails: 'Cargando detalles del usuario...',
+      close: 'Cerrar'
+    },
+    success: {
+      created: 'Usuario creado correctamente.',
+      updated: 'Usuario actualizado correctamente.'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API en {{baseUrl}}. Inicia la API con: dotnet run --project src/Backend/EventList.Api',
+      load: 'Error al cargar los usuarios.',
+      create: 'Error al crear el usuario.',
+      update: 'Error al actualizar el usuario.',
+      loadDetails: 'Error al cargar los detalles del usuario.',
+      emailPasswordRequired: 'El correo y la contraseña son obligatorios.',
+      emailRequired: 'El correo es obligatorio.',
+      invalidEmail: 'Por favor, introduce una dirección de correo válida.'
+    }
+  },
+  peoplePage: {
+    title: 'Personas',
+    importAvailability: 'Importar disponibilidad (Excel)',
+    createPerson: 'Crear persona',
+    active: 'Activos',
+    archived: 'Archivados',
+    loading: 'Cargando personas {{view}}...',
+    noArchivedPeople: 'No hay personas archivadas aún.',
+    noPeople: 'No hay personas aún. Crea una persona o importa disponibilidad desde un archivo Excel.',
+    edit: 'Editar',
+    archive: 'Archivar',
+    restore: 'Restaurar',
+    table: {
+      action: 'Acción',
+      fullName: 'Nombre completo',
+      email: 'Correo',
+      phone: 'Teléfono',
+      availability: 'Disponibilidad',
+      archivedAt: 'Archivado el'
+    },
+    dialog: {
+      createTitle: 'Crear persona',
+      editTitle: 'Editar persona',
+      fullNameLabel: 'Nombre completo',
+      emailLabel: 'Correo',
+      phoneLabel: 'Teléfono',
+      availabilityLabel: 'Disponibilidad',
+      availabilityPlaceholder: 'Ejemplo: Lun-Vie 09:00-18:00',
+      cancel: 'Cancelar',
+      save: 'Guardar',
+      create: 'Crear'
+    },
+    confirmArchive: '¿Archivar a {{name}}?',
+    confirmRestore: '¿Restaurar a {{name}}?',
+    success: {
+      archived: 'Persona archivada correctamente.',
+      restored: 'Persona restaurada correctamente.',
+      created: 'Persona creada correctamente.',
+      updated: 'Persona actualizada correctamente.',
+      importComplete: 'Importación de Excel completa. Añadidos {{added}}, actualizados {{updated}}.'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API en {{baseUrl}}. Inicia la API con: dotnet run --project src/Backend/EventList.Api',
+      load: 'No se pueden cargar las personas ahora mismo.',
+      loadArchived: 'No se pueden cargar las personas archivadas ahora mismo.',
+      archive: 'Error al archivar la persona.',
+      restore: 'Error al restaurar la persona.',
+      create: 'Error al crear la persona.',
+      update: 'Error al actualizar la persona.',
+      importFailed: 'No se pudo importar este archivo. Sube un archivo .xlsx o .xls válido.',
+      importApiError: 'Error al importar personas desde Excel.',
+      emptyFile: 'El archivo Excel seleccionado está vacío.',
+      fullNameEmailRequired: 'El nombre completo y el correo son obligatorios.',
+      invalidEmail: 'Por favor, introduce una dirección de correo válida.'
     }
   }
 };

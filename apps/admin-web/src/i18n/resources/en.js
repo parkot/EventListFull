@@ -21,6 +21,7 @@ const en = {
     people: 'People',
     administrators: 'Administrators',
     users: 'Users',
+    emailTemplates: 'Email Templates',
     authentication: 'Authentication',
     login: 'Login',
     register: 'Register',
@@ -204,7 +205,21 @@ const en = {
       agreeText: 'By Signing up, you agree to our',
       termsOfService: 'Terms of Service',
       privacyPolicy: 'Privacy Policy',
-      button: 'Create Account'
+      button: 'Create Account',
+      unableToRegister: 'Unable to create your account right now. Please try again.',
+      emailAlreadyExists: 'An account with this email already exists. Please login instead.',
+      goToLogin: 'Go to Login',
+      successToast: 'Account created successfully. Redirecting...',
+      welcome: {
+        defaultName: 'there',
+        title: 'Welcome, {{firstName}}',
+        instructions: {
+          line1: 'Your account is ready and you can now start organizing events.',
+          line2: 'Use the dashboard to create events, manage guests, and track responses.',
+          line3: 'If this is your first visit, begin with the default dashboard overview.'
+        },
+        goToDashboard: 'Go To Admin Dashboard'
+      }
     },
     validation: {
       mustBeValidEmail: 'Must be a valid email',
@@ -215,6 +230,181 @@ const en = {
       passwordTooLongRegister: 'Password must be less than 10 characters',
       firstNameRequired: 'First Name is required',
       lastNameRequired: 'Last Name is required'
+    }
+  },
+  emailTemplates: {
+    title: 'Email Templates',
+    newTemplate: 'New Template',
+    adminOnly: 'This page is available only for administrators.',
+    sendTestEmail: 'Send Test Email',
+    filterByType: 'Filter by type',
+    filterByLanguage: 'Filter by language',
+    all: 'All',
+    search: 'Search',
+    searchPlaceholder: 'Type, subject, body',
+    loading: 'Loading templates...',
+    noTemplates: 'No templates match the current filters.',
+    edit: 'Edit',
+    table: {
+      action: 'Action',
+      type: 'Type',
+      language: 'Language',
+      subject: 'Subject'
+    },
+    dialog: {
+      saveTitle: 'Save Email Template',
+      testTitle: 'Send Test Email',
+      typeLabel: 'Type',
+      languageLabel: 'Language',
+      languageHelper: 'Choose template language',
+      subjectLabel: 'Subject',
+      bodyLabel: 'Body (HTML)',
+      bodyHelper: 'Supported placeholders: {{Email}}, {{Token}}, {{ConfirmationLink}}, {{ResetLink}}, {{EventTitle}}, {{EventDate}}, {{EventLink}}',
+      livePreview: 'Live preview',
+      previewCaption: 'Preview uses sample values so you can verify placeholders before saving.',
+      toEmailLabel: 'To email',
+      templateTypeLabel: 'Template type',
+      testLanguageHelper: 'Select which localized template version to send',
+      cancel: 'Cancel',
+      save: 'Save',
+      send: 'Send'
+    },
+    success: {
+      saved: 'Email template saved successfully.',
+      testSent: 'Test email sent to {{toEmail}}.'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API at {{baseUrl}}. Start API with: dotnet run --project src/Backend/EventList.Api',
+      load: 'Failed to load email templates.',
+      save: 'Failed to save email template.',
+      sendTest: 'Failed to send test email.',
+      subjectBodyRequired: 'Subject and body are required.',
+      recipientRequired: 'Recipient email is required.',
+      invalidEmail: 'Please enter a valid email address.'
+    }
+  },
+  usersPage: {
+    title: 'Users',
+    createUser: 'Create User',
+    adminOnly: 'This page is available only for administrators.',
+    loading: 'Loading users...',
+    noUsers: 'No users found.',
+    view: 'View',
+    edit: 'Edit',
+    yes: 'Yes',
+    no: 'No',
+    table: {
+      action: 'Action',
+      email: 'Email',
+      role: 'Role',
+      language: 'Language',
+      timeZone: 'Time Zone',
+      emailConfirmed: 'Email Confirmed',
+      created: 'Created',
+      lastLogin: 'Last Login'
+    },
+    createDialog: {
+      title: 'Create User',
+      emailLabel: 'Email',
+      passwordLabel: 'Password',
+      roleLabel: 'Role',
+      preferredLanguageLabel: 'Preferred Language',
+      timeZoneLabel: 'Time Zone',
+      cancel: 'Cancel',
+      create: 'Create'
+    },
+    editDialog: {
+      title: 'Edit User',
+      emailLabel: 'Email',
+      roleLabel: 'Role',
+      preferredLanguageLabel: 'Preferred Language',
+      timeZoneLabel: 'Time Zone',
+      emailConfirmedLabel: 'Email Confirmed',
+      cancel: 'Cancel',
+      save: 'Save'
+    },
+    viewDialog: {
+      title: 'User Details',
+      email: 'Email',
+      role: 'Role',
+      preferredLanguage: 'Preferred Language',
+      timeZone: 'Time Zone',
+      emailConfirmed: 'Email Confirmed',
+      created: 'Created',
+      lastLogin: 'Last Login',
+      userId: 'User Id',
+      loadingDetails: 'Loading user details...',
+      close: 'Close'
+    },
+    success: {
+      created: 'User created successfully.',
+      updated: 'User updated successfully.'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API at {{baseUrl}}. Start API with: dotnet run --project src/Backend/EventList.Api',
+      load: 'Failed to load users.',
+      create: 'Failed to create user.',
+      update: 'Failed to update user.',
+      loadDetails: 'Failed to load user details.',
+      emailPasswordRequired: 'Email and password are required.',
+      emailRequired: 'Email is required.',
+      invalidEmail: 'Please enter a valid email address.'
+    }
+  },
+  peoplePage: {
+    title: 'People',
+    importAvailability: 'Import Availability (Excel)',
+    createPerson: 'Create Person',
+    active: 'Active',
+    archived: 'Archived',
+    loading: 'Loading {{view}} people...',
+    noArchivedPeople: 'No archived people yet.',
+    noPeople: 'No people yet. Create one person or import availability from an Excel file.',
+    edit: 'Edit',
+    archive: 'Archive',
+    restore: 'Restore',
+    table: {
+      action: 'Action',
+      fullName: 'Full Name',
+      email: 'Email',
+      phone: 'Phone',
+      availability: 'Availability',
+      archivedAt: 'Archived At'
+    },
+    dialog: {
+      createTitle: 'Create Person',
+      editTitle: 'Edit Person',
+      fullNameLabel: 'Full Name',
+      emailLabel: 'Email',
+      phoneLabel: 'Phone',
+      availabilityLabel: 'Availability',
+      availabilityPlaceholder: 'Example: Mon-Fri 09:00-18:00',
+      cancel: 'Cancel',
+      save: 'Save',
+      create: 'Create'
+    },
+    confirmArchive: 'Archive {{name}}?',
+    confirmRestore: 'Restore {{name}}?',
+    success: {
+      archived: 'Person archived successfully.',
+      restored: 'Person restored successfully.',
+      created: 'Person created successfully.',
+      updated: 'Person updated successfully.',
+      importComplete: 'Excel import complete. Added {{added}}, updated {{updated}}.'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API at {{baseUrl}}. Start API with: dotnet run --project src/Backend/EventList.Api',
+      load: 'Unable to load people right now.',
+      loadArchived: 'Unable to load archived people right now.',
+      archive: 'Failed to archive person.',
+      restore: 'Failed to restore person.',
+      create: 'Failed to create person.',
+      update: 'Failed to update person.',
+      importFailed: 'Could not import this file. Please upload a valid .xlsx or .xls file.',
+      importApiError: 'Failed to import people from Excel.',
+      emptyFile: 'The selected Excel file is empty.',
+      fullNameEmailRequired: 'Full name and email are required.',
+      invalidEmail: 'Please enter a valid email address.'
     }
   }
 };

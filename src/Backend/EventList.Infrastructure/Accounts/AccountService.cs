@@ -451,3 +451,17 @@ public sealed class BootstrapAdminOptions
     public string PreferredLanguage { get; set; } = "en";
     public string TimeZone { get; set; } = "UTC";
 }
+
+public sealed class SmtpOptions
+{
+    public const string SectionName = "Smtp";
+    public string Host { get; set; } = string.Empty;
+    public int Port { get; set; } = 587;
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public bool EnableSsl { get; set; } = true;
+    public string FromAddress { get; set; } = string.Empty;
+    public string FromName { get; set; } = "EventList";
+    public string ConfirmEmailBaseUrl { get; set; } = string.Empty;
+    public string ResetPasswordBaseUrl { get; set; } = string.Empty;
+}

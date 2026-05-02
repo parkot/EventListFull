@@ -1,16 +1,20 @@
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
+using System.Net;
+using System.Net.Mail;
 using EventList.Application.Accounts;
 using EventList.Application.Billing;
 using EventList.Application.Delivery;
 using EventList.Application.Events;
 using EventList.Application.People;
 using EventList.Application.Templates;
+using EventList.Domain.Templates;
 using EventList.Infrastructure;
 using EventList.Infrastructure.Accounts;
 using EventList.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -186,6 +190,9 @@ app.MapGet("/api/users/me", async (ClaimsPrincipal claimsPrincipal, IAccountServ
 var adminUsers = app.MapGroup("/api/admin/users")
     .RequireAuthorization(policy => policy.RequireRole("Administrator"));
 
+var adminEmailTemplates = app.MapGroup("/api/admin/email-templates")
+    .RequireAuthorization(policy => policy.RequireRole("Administrator"));
+
 adminUsers.MapGet("/", async (IAccountService accountService, CancellationToken cancellationToken) =>
 {
     var result = await accountService.GetUsersAsync(cancellationToken);
@@ -208,6 +215,71 @@ adminUsers.MapPut("/{userId:guid}", async (Guid userId, UpdateUserRequest reques
 {
     var result = await accountService.UpdateUserAsync(userId, request, cancellationToken);
     return Results.Ok(result);
+});
+
+adminEmailTemplates.MapGet("/", async (IEmailTemplateService emailTemplateService, CancellationToken cancellationToken) =>
+{
+    var result = await emailTemplateService.GetEmailTemplatesAsync(cancellationToken);
+    return Results.Ok(result);
+});
+
+adminEmailTemplates.MapPut("/", async (UpsertEmailTemplateRequest request, IEmailTemplateService emailTemplateService, CancellationToken cancellationToken) =>
+{
+    var result = await emailTemplateService.UpsertEmailTemplateAsync(request, cancellationToken);
+    return Results.Ok(result);
+});
+
+adminEmailTemplates.MapPost("/test", async (
+    SendTestEmailTemplateRequest request,
+    IEmailTemplateService emailTemplateService,
+    IOptions<SmtpOptions> smtpOptions,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(request.ToEmail))
+    {
+        return Results.BadRequest(new { Message = "Recipient email is required." });
+    }
+
+    var smtp = smtpOptions.Value;
+    if (string.IsNullOrWhiteSpace(smtp.Host))
+    {
+        return Results.BadRequest(new { Message = "SMTP host is not configured." });
+    }
+
+    var resolved = await emailTemplateService.ResolveTemplateAsync(request.Type, request.Language, cancellationToken);
+
+    var token = "TOKEN-123456";
+    var confirmationLink = string.IsNullOrWhiteSpace(smtp.ConfirmEmailBaseUrl)
+        ? token
+        : BuildTokenLink(smtp.ConfirmEmailBaseUrl, token);
+    var resetLink = string.IsNullOrWhiteSpace(smtp.ResetPasswordBaseUrl)
+        ? token
+        : BuildTokenLink(smtp.ResetPasswordBaseUrl, token);
+
+    var subject = ApplyTemplateTokens(resolved.Subject, token, confirmationLink, resetLink);
+    var body = ApplyTemplateTokens(resolved.Body, token, confirmationLink, resetLink);
+
+    using var client = new SmtpClient(smtp.Host, smtp.Port)
+    {
+        EnableSsl = smtp.EnableSsl,
+        DeliveryMethod = SmtpDeliveryMethod.Network,
+        UseDefaultCredentials = false,
+        Credentials = new NetworkCredential(smtp.Username, smtp.Password)
+    };
+
+    var from = string.IsNullOrWhiteSpace(smtp.FromAddress)
+        ? new MailAddress(smtp.Username)
+        : new MailAddress(smtp.FromAddress, smtp.FromName);
+
+    using var message = new MailMessage(from, new MailAddress(request.ToEmail.Trim()))
+    {
+        Subject = subject,
+        Body = body,
+        IsBodyHtml = true
+    };
+
+    await client.SendMailAsync(message, cancellationToken);
+    return Results.Ok(new { Message = "Test email sent." });
 });
 
 var events = app.MapGroup("/api/events").RequireAuthorization();
@@ -462,5 +534,30 @@ static bool TryGetUserId(ClaimsPrincipal claimsPrincipal, out Guid userId)
     var userIdValue = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
     return Guid.TryParse(userIdValue, out userId);
 }
+
+static string BuildTokenLink(string baseUrl, string token)
+{
+    var separator = baseUrl.Contains('?')
+        ? baseUrl.EndsWith('?') || baseUrl.EndsWith('&')
+            ? string.Empty
+            : "&"
+        : "?";
+
+    return $"{baseUrl}{separator}token={Uri.EscapeDataString(token)}";
+}
+
+static string ApplyTemplateTokens(string template, string token, string confirmationLink, string resetLink)
+{
+    return template
+        .Replace("{{Email}}", "demo@eventlist.local", StringComparison.Ordinal)
+        .Replace("{{Token}}", token, StringComparison.Ordinal)
+        .Replace("{{ConfirmationLink}}", confirmationLink, StringComparison.Ordinal)
+        .Replace("{{ResetLink}}", resetLink, StringComparison.Ordinal)
+        .Replace("{{EventTitle}}", "Spring Gala Dinner", StringComparison.Ordinal)
+        .Replace("{{EventDate}}", "2026-06-15 19:30 UTC", StringComparison.Ordinal)
+        .Replace("{{EventLink}}", "https://app.eventlist.local/events/demo", StringComparison.Ordinal);
+}
+
+public sealed record SendTestEmailTemplateRequest(string ToEmail, EmailTemplateType Type, string Language);
 
 public partial class Program;

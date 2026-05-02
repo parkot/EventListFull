@@ -125,6 +125,7 @@ export default function Button(theme) {
           }
         },
         contained: {
+          color: '#fff',
           '&.Mui-disabled': {
             ...disabledStyle
           }

@@ -2,9 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 // material-ui
 import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -12,6 +17,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -23,12 +29,82 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 // project imports
+import GreekTableHeadCell from 'components/GreekTableHeadCell';
 import MainCard from 'components/MainCard';
 import { apiRequest, getApiBaseUrl } from 'utils/api';
+
+const languageOptions = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'el', label: 'Greek' }
+];
+
+function getAllTimeZones() {
+  try {
+    if (typeof Intl.supportedValuesOf === 'function') {
+      return Intl.supportedValuesOf('timeZone');
+    }
+  } catch {
+    // Fall back to a curated list when runtime does not expose supportedValuesOf.
+  }
+
+  return [
+    'UTC',
+    'Europe/Athens',
+    'Europe/London',
+    'Europe/Madrid',
+    'America/New_York',
+    'America/Chicago',
+    'America/Denver',
+    'America/Los_Angeles',
+    'Asia/Dubai',
+    'Asia/Singapore',
+    'Asia/Tokyo',
+    'Australia/Sydney'
+  ];
+}
+
+function toUtcOffsetLabel(timeZone) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'shortOffset'
+    }).formatToParts(new Date());
+
+    const offsetPart = parts.find((part) => part.type === 'timeZoneName')?.value || 'GMT';
+    if (offsetPart === 'GMT' || offsetPart === 'UTC') {
+      return 'UTC+00:00';
+    }
+
+    const match = offsetPart.match(/^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/);
+    if (!match) {
+      return offsetPart.replace('GMT', 'UTC');
+    }
+
+    const sign = match[1];
+    const hours = match[2].padStart(2, '0');
+    const minutes = (match[3] || '00').padStart(2, '0');
+    return `UTC${sign}${hours}:${minutes}`;
+  } catch {
+    return 'UTC+00:00';
+  }
+}
+
+function mapTimeZoneOption(timeZone) {
+  return {
+    value: timeZone,
+    label: `${timeZone} (${toUtcOffsetLabel(timeZone)})`
+  };
+}
 
 function toLocalDateTimeInputValue(date) {
   const timezoneOffset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
+}
+
+function toDayjsLocal(isoLikeString) {
+  // isoLikeString is in local "YYYY-MM-DDTHH:mm" format
+  return dayjs(isoLikeString);
 }
 
 function getPublicInvitationUrl(invitationCode) {
@@ -107,6 +183,7 @@ export default function EventsPage() {
   const [copiedGuestId, setCopiedGuestId] = useState(null);
 
   const defaultTimeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', []);
+  const timeZoneOptions = useMemo(() => getAllTimeZones().map(mapTimeZoneOption), []);
   const apiUnavailableMessage = useMemo(
     () =>
       t('eventsPage.errors.backendUnavailable', {
@@ -270,12 +347,12 @@ export default function EventsPage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>{t('eventsPage.table.edit')}</TableCell>
-                  <TableCell>{t('eventsPage.table.title')}</TableCell>
-                  <TableCell>{t('eventsPage.table.occasion')}</TableCell>
-                  <TableCell>{t('eventsPage.table.scheduledLocal')}</TableCell>
-                  <TableCell>{t('eventsPage.table.venue')}</TableCell>
-                  <TableCell align="right">{t('eventsPage.table.guests')}</TableCell>
+                  <GreekTableHeadCell>{t('eventsPage.table.edit')}</GreekTableHeadCell>
+                  <GreekTableHeadCell>{t('eventsPage.table.title')}</GreekTableHeadCell>
+                  <GreekTableHeadCell>{t('eventsPage.table.occasion')}</GreekTableHeadCell>
+                  <GreekTableHeadCell>{t('eventsPage.table.scheduledLocal')}</GreekTableHeadCell>
+                  <GreekTableHeadCell>{t('eventsPage.table.venue')}</GreekTableHeadCell>
+                  <GreekTableHeadCell align="right">{t('eventsPage.table.guests')}</GreekTableHeadCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -353,7 +430,7 @@ export default function EventsPage() {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, status, resetForm }) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, status, resetForm, setFieldValue, setFieldTouched }) => (
           <Dialog
             fullWidth
             maxWidth="sm"
@@ -396,19 +473,30 @@ export default function EventsPage() {
                     helperText={touched.occasionType && errors.occasionType}
                   />
 
-                  <TextField
-                    fullWidth
-                    id="scheduledAtUtc"
-                    name="scheduledAtUtc"
-                    label={t('eventsPage.form.scheduledDateTime')}
-                    type="datetime-local"
-                    value={values.scheduledAtUtc}
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    error={Boolean(touched.scheduledAtUtc && errors.scheduledAtUtc)}
-                    helperText={touched.scheduledAtUtc && errors.scheduledAtUtc}
-                    InputLabelProps={{ shrink: true }}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      label={t('eventsPage.form.scheduledDateTime')}
+                      value={values.scheduledAtUtc ? toDayjsLocal(values.scheduledAtUtc) : null}
+                      onChange={(newValue) => {
+                        if (newValue && newValue.isValid()) {
+                          setFieldValue('scheduledAtUtc', newValue.format('YYYY-MM-DDTHH:mm'));
+                        } else {
+                          setFieldValue('scheduledAtUtc', '');
+                        }
+                      }}
+                      onClose={() => setFieldTouched('scheduledAtUtc', true)}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          id: 'scheduledAtUtc',
+                          name: 'scheduledAtUtc',
+                          onBlur: () => setFieldTouched('scheduledAtUtc', true),
+                          error: Boolean(touched.scheduledAtUtc && errors.scheduledAtUtc),
+                          helperText: touched.scheduledAtUtc && errors.scheduledAtUtc
+                        }
+                      }}
+                    />
+                  </LocalizationProvider>
 
                   <TextField
                     fullWidth
@@ -435,16 +523,26 @@ export default function EventsPage() {
                   />
 
                   <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
-                    <TextField
+                    <Autocomplete
+                      options={timeZoneOptions}
+                      value={timeZoneOptions.find((option) => option.value === values.timeZone) || null}
+                      onChange={(_, newValue) => setFieldValue('timeZone', newValue?.value || defaultTimeZone)}
+                      onBlur={() => setFieldTouched('timeZone', true)}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) => option.value === value.value}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          id="timeZone"
+                          name="timeZone"
+                          label={t('eventsPage.form.timeZone')}
+                          error={Boolean(touched.timeZone && errors.timeZone)}
+                          helperText={touched.timeZone && errors.timeZone}
+                        />
+                      )}
                       fullWidth
-                      id="timeZone"
-                      name="timeZone"
-                      label={t('eventsPage.form.timeZone')}
-                      value={values.timeZone}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      error={Boolean(touched.timeZone && errors.timeZone)}
-                      helperText={touched.timeZone && errors.timeZone}
+                      autoHighlight
                     />
 
                     <TextField
@@ -452,12 +550,19 @@ export default function EventsPage() {
                       id="defaultLanguage"
                       name="defaultLanguage"
                       label={t('eventsPage.form.defaultLanguage')}
+                      select
                       value={values.defaultLanguage}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       error={Boolean(touched.defaultLanguage && errors.defaultLanguage)}
                       helperText={touched.defaultLanguage && errors.defaultLanguage}
-                    />
+                    >
+                      {languageOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
                   </Box>
                 </Stack>
               </DialogContent>
@@ -508,10 +613,10 @@ export default function EventsPage() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{t('eventsPage.guestsTable.name')}</TableCell>
-                    <TableCell align="center">{t('eventsPage.guestsTable.countPerson')}</TableCell>
-                    <TableCell>{t('eventsPage.guestsTable.status')}</TableCell>
-                    <TableCell>{t('eventsPage.guestsTable.url')}</TableCell>
+                    <GreekTableHeadCell>{t('eventsPage.guestsTable.name')}</GreekTableHeadCell>
+                    <GreekTableHeadCell align="center">{t('eventsPage.guestsTable.countPerson')}</GreekTableHeadCell>
+                    <GreekTableHeadCell>{t('eventsPage.guestsTable.status')}</GreekTableHeadCell>
+                    <GreekTableHeadCell>{t('eventsPage.guestsTable.url')}</GreekTableHeadCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

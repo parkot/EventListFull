@@ -16,6 +16,7 @@ import { NumericFormat } from 'react-number-format';
 
 // project imports
 import Dot from 'components/@extended/Dot';
+import GreekTableHeadCell from 'components/GreekTableHeadCell';
 
 function createData(tracking_no, name, fat, carbs, protein) {
   return { tracking_no, name, fat, carbs, protein };
@@ -101,14 +102,14 @@ function OrderTableHead({ order, orderBy }) {
     <TableHead>
       <TableRow>
         {headCells.map((headCell) => (
-          <TableCell
+          <GreekTableHeadCell
             key={headCell.id}
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             {headCell.label}
-          </TableCell>
+          </GreekTableHeadCell>
         ))}
       </TableRow>
     </TableHead>

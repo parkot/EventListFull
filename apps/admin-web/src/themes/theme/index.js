@@ -1,7 +1,7 @@
 // ==============================|| PRESET THEME - DEFAULT ||============================== //
 
 export default function Default(colors) {
-  const { blue, red, gold, cyan, green, grey } = colors;
+  const { red, gold, cyan, green, grey } = colors;
   const greyColors = {
     0: grey[0],
     50: grey[1],
@@ -25,33 +25,33 @@ export default function Default(colors) {
 
   return {
     primary: {
-      lighter: blue[0],
-      100: blue[1],
-      200: blue[2],
-      light: blue[3],
-      400: blue[4],
-      main: blue[5],
-      dark: blue[6],
-      700: blue[7],
-      darker: blue[8],
-      900: blue[9],
-      contrastText
+      lighter: '#f2e8c6',
+      100: '#eadcb0',
+      200: '#e2d19a',
+      light: '#d9c684',
+      400: '#d1ba6e',
+      main: '#c9a84c',
+      dark: '#b59443',
+      700: '#a3863c',
+      darker: '#8d7334',
+      900: '#76602b',
+      contrastText: '#000000'
     },
     secondary: {
-      lighter: greyColors[100],
-      100: greyColors[100],
-      200: greyColors[200],
-      light: greyColors[300],
-      400: greyColors[400],
-      main: greyColors[500],
-      600: greyColors[600],
-      dark: greyColors[700],
-      800: greyColors[800],
-      darker: greyColors[900],
-      A100: greyColors[0],
-      A200: greyColors.A400,
-      A300: greyColors.A700,
-      contrastText: greyColors[0]
+      lighter: '#efeadf',
+      100: '#efeadf',
+      200: '#e6e4dd',
+      light: '#dad5bc',
+      400: '#c8c3ac',
+      main: '#dad5bc',
+      600: '#a9a48f',
+      dark: '#636157',
+      800: '#4f4d45',
+      darker: '#000000',
+      A100: '#f7f6f2',
+      A200: '#9b9785',
+      A300: '#6e6b5f',
+      contrastText: '#000000'
     },
     error: {
       lighter: red[0],

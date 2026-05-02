@@ -19,6 +19,7 @@ const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')))
 const EventsPage = Loadable(lazy(() => import('pages/events')));
 const PeoplePage = Loadable(lazy(() => import('pages/people')));
 const UsersPage = Loadable(lazy(() => import('pages/users')));
+const EmailTemplatesPage = Loadable(lazy(() => import('pages/email-templates')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -72,6 +73,14 @@ const MainRoutes = {
       element: (
         <RequireRole roles={['Administrator']}>
           <UsersPage />
+        </RequireRole>
+      )
+    },
+    {
+      path: 'admin/email-templates',
+      element: (
+        <RequireRole roles={['Administrator']}>
+          <EmailTemplatesPage />
         </RequireRole>
       )
     }

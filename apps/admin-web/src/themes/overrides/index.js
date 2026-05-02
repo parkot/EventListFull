@@ -41,7 +41,7 @@ export default function ComponentsOverrides(theme) {
     IconButton(theme),
     InputLabel(theme),
     LinearProgress(),
-    Link(),
+    Link(theme),
     ListItemButton(theme),
     ListItemIcon(theme),
     OutlinedInput(theme),
@@ -52,6 +52,6 @@ export default function ComponentsOverrides(theme) {
     TableRow(),
     Tabs(),
     Tooltip(theme),
-    Typography()
+    Typography(theme)
   );
 }

@@ -11,6 +11,7 @@ using EventList.Infrastructure.Events;
 using EventList.Infrastructure.People;
 using EventList.Infrastructure.Persistence;
 using EventList.Infrastructure.Templates;
+using EventList.Domain.Templates;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,12 +37,14 @@ public static class DependencyInjection
         services.AddScoped<IBillingService, BillingService>();
         services.AddScoped<IDeliveryService, DeliveryService>();
         services.AddScoped<IEventService, EventService>();
+        services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<IPersonService, PersonService>();
         services.AddScoped<ITemplateService, TemplateService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.AddSingleton<IPaymentGateway, DevelopmentPaymentGateway>();
         services.AddSingleton<IInvitationDeliveryProvider, DevelopmentInvitationDeliveryProvider>();
-        services.AddSingleton<INotificationSink, DevelopmentNotificationSink>();
+        services.AddScoped<INotificationSink, SmtpNotificationSink>();
 
         return services;
     }
@@ -63,6 +66,38 @@ public static class DependencyInjection
         var accountService = (AccountService)scope.ServiceProvider.GetRequiredService<IAccountService>();
         await accountService.EnsureBootstrapAdminAsync();
         await EnsureBillingSeedDataAsync(dbContext);
+        await EnsureEmailTemplateSeedDataAsync(dbContext);
+    }
+
+    private static async Task EnsureEmailTemplateSeedDataAsync(ApplicationDbContext dbContext)
+    {
+        var defaults = new[]
+        {
+            new { Type = EmailTemplateType.UserRegistrationConfirm, Language = "en", Subject = "Confirm your email address", Body = "<p>Hello,</p><p>Please confirm your email address by clicking the link below:</p><p><a href=\"{{ConfirmationLink}}\">Confirm Email</a></p><p>This link expires in 24 hours. If you did not register, you can safely ignore this email.</p><p>- EventList</p>" },
+            new { Type = EmailTemplateType.PasswordReset, Language = "en", Subject = "Reset your password", Body = "<p>Hello,</p><p>You requested a password reset. Click the link below to set a new password:</p><p><a href=\"{{ResetLink}}\">Reset Password</a></p><p>This link expires in 2 hours. If you did not request this, you can safely ignore this email.</p><p>- EventList</p>" },
+            new { Type = EmailTemplateType.WelcomeMessage, Language = "en", Subject = "Welcome to EventList", Body = "<p>Hello {{Email}},</p><p>Welcome to EventList.</p><p>- EventList</p>" },
+            new { Type = EmailTemplateType.InvitationReminder, Language = "en", Subject = "Reminder: your event invitation", Body = "<p>Hello {{Email}},</p><p>This is a reminder for your invitation to <strong>{{EventTitle}}</strong>.</p><p>Event date: {{EventDate}}</p><p><a href=\"{{EventLink}}\">Open event details</a></p><p>- EventList</p>" },
+            new { Type = EmailTemplateType.EventUpdated, Language = "en", Subject = "Event details updated", Body = "<p>Hello {{Email}},</p><p>The event <strong>{{EventTitle}}</strong> has been updated.</p><p>Updated schedule: {{EventDate}}</p><p><a href=\"{{EventLink}}\">Review event updates</a></p><p>- EventList</p>" }
+        };
+
+        foreach (var template in defaults)
+        {
+            var exists = await dbContext.EmailTemplates.AnyAsync(x => x.Type == template.Type && x.Language == template.Language);
+            if (exists)
+            {
+                continue;
+            }
+
+            dbContext.EmailTemplates.Add(new EmailTemplate
+            {
+                Type = template.Type,
+                Language = template.Language,
+                Subject = template.Subject,
+                Body = template.Body
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 
     private static async Task EnsureBillingSeedDataAsync(ApplicationDbContext dbContext)

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 // material-ui
@@ -17,6 +17,8 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Autocomplete from '@mui/material/Autocomplete';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 // third-party
 import * as Yup from 'yup';
@@ -25,6 +27,8 @@ import { Formik } from 'formik';
 // project imports
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
+import { loginUser, registerUser } from 'api/auth';
+import { saveAuthSession } from 'utils/auth';
 
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
 
@@ -89,13 +93,16 @@ const mapCountryOption = (country) => {
 };
 
 export default function AuthRegister() {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
   const [countryOptions, setCountryOptions] = useState(defaultCountryOptions);
   const [isCountriesLoading, setIsCountriesLoading] = useState(false);
   const [countrySearchText, setCountrySearchText] = useState('+1');
   const [isCountrySelectorOpen, setIsCountrySelectorOpen] = useState(false);
+  const [isSuccessToastOpen, setIsSuccessToastOpen] = useState(false);
+  const redirectTimerRef = useRef(null);
 
   const validationSchema = useMemo(
     () =>
@@ -121,6 +128,23 @@ export default function AuthRegister() {
   const changePassword = (value) => {
     const temp = strengthIndicator(value);
     setLevel(strengthColor(temp));
+  };
+
+  const extractApiError = async (response) => {
+    try {
+      const payload = await response.json();
+      return payload?.detail || payload?.title || payload?.message || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const getLocalTimeZone = () => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    } catch {
+      return 'UTC';
+    }
   };
 
   useEffect(() => {
@@ -168,6 +192,15 @@ export default function AuthRegister() {
     };
   }, []);
 
+  useEffect(
+    () => () => {
+      if (redirectTimerRef.current) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+    },
+    []
+  );
+
   return (
     <>
       <Formik
@@ -182,13 +215,72 @@ export default function AuthRegister() {
           submit: null
         }}
         validationSchema={validationSchema}
+        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          try {
+            const registerResponse = await registerUser({
+              email: values.email.trim(),
+              password: values.password,
+              preferredLanguage: i18n.language || 'en',
+              timeZone: getLocalTimeZone()
+            });
+
+            if (!registerResponse.ok) {
+              if (registerResponse.status === 409) {
+                setStatus({ success: false, duplicateEmail: true });
+                setErrors({ submit: t('auth.register.emailAlreadyExists') });
+                return;
+              }
+
+              const apiError = await extractApiError(registerResponse);
+              setStatus({ success: false, duplicateEmail: false });
+              setErrors({ submit: apiError || t('auth.register.unableToRegister') });
+              return;
+            }
+
+            const loginResponse = await loginUser({
+              email: values.email.trim(),
+              password: values.password
+            });
+
+            if (loginResponse.ok) {
+              const loginData = await loginResponse.json();
+
+              saveAuthSession({
+                accessToken: loginData?.accessToken,
+                refreshToken: loginData?.refreshToken,
+                expiresAtUtc: loginData?.expiresAtUtc,
+                refreshTokenExpiresAtUtc: loginData?.refreshTokenExpiresAtUtc,
+                sessionId: loginData?.sessionId,
+                user: loginData?.user
+              });
+            }
+
+            setStatus({ success: true, duplicateEmail: false });
+            setIsSuccessToastOpen(true);
+
+            redirectTimerRef.current = window.setTimeout(() => {
+              navigate('/register/welcome', {
+                replace: true,
+                state: {
+                  firstName: values.firstname,
+                  email: values.email
+                }
+              });
+            }, 1200);
+          } catch {
+            setStatus({ success: false, duplicateEmail: false });
+            setErrors({ submit: t('auth.register.unableToRegister') });
+          } finally {
+            setSubmitting(false);
+          }
+        }}
       >
-        {({ errors, handleBlur, handleChange, touched, values, setFieldValue }) => (
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, status, touched, values, setFieldValue }) => (
           (() => {
             const selectedCountry = countryOptions.find((option) => option.isoCode === values.countryIsoCode) ?? null;
 
             return (
-          <form noValidate>
+          <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Stack sx={{ gap: 1 }}>
@@ -421,12 +513,22 @@ export default function AuthRegister() {
               </Grid>
               {errors.submit && (
                 <Grid size={12}>
-                  <FormHelperText error>{errors.submit}</FormHelperText>
+                  <FormHelperText error>
+                    {errors.submit}
+                    {status?.duplicateEmail && (
+                      <>
+                        {' '}
+                        <Link component={RouterLink} to="/login" variant="subtitle2" color="inherit" sx={{ textDecoration: 'underline' }}>
+                          {t('auth.register.goToLogin')}
+                        </Link>
+                      </>
+                    )}
+                  </FormHelperText>
                 </Grid>
               )}
               <Grid size={12}>
                 <AnimateButton>
-                  <Button fullWidth size="large" variant="contained" color="primary">
+                  <Button fullWidth size="large" type="submit" variant="contained" color="primary" disabled={isSubmitting} sx={{ color: '#ffffff' }}>
                     {t('auth.register.button')}
                   </Button>
                 </AnimateButton>
@@ -437,6 +539,11 @@ export default function AuthRegister() {
           })()
         )}
       </Formik>
+      <Snackbar open={isSuccessToastOpen} autoHideDuration={1000} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert severity="success" variant="filled" sx={{ width: '100%' }}>
+          {t('auth.register.successToast')}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
