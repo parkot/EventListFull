@@ -1,9 +1,25 @@
 import { clearAuthSession, getAccessToken, getAuthSession, updateAuthSession } from './auth';
 
 let refreshPromise = null;
+let hasWarnedMissingApiBaseUrl = false;
 
 export function getApiBaseUrl() {
-  return import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5201' : 'https://eventlistapi.2pix.gr');
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+  if (configuredBaseUrl) {
+    return configuredBaseUrl;
+  }
+
+  if (import.meta.env.DEV) {
+    return 'http://localhost:5201';
+  }
+
+  if (!hasWarnedMissingApiBaseUrl && typeof console !== 'undefined') {
+    console.warn('[admin-web] VITE_API_BASE_URL is missing in production. Falling back to https://eventlistapi.2pix.gr.');
+    hasWarnedMissingApiBaseUrl = true;
+  }
+
+  return 'https://eventlistapi.2pix.gr';
 }
 
 function buildHeaders(headers = {}) {
