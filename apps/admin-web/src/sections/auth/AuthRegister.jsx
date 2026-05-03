@@ -103,6 +103,7 @@ export default function AuthRegister() {
   const [isCountrySelectorOpen, setIsCountrySelectorOpen] = useState(false);
   const [isSuccessToastOpen, setIsSuccessToastOpen] = useState(false);
   const redirectTimerRef = useRef(null);
+  const setFieldValueRef = useRef(null);
 
   const validationSchema = useMemo(
     () =>
@@ -175,6 +176,23 @@ export default function AuthRegister() {
 
         if (isMounted && options.length > 0) {
           setCountryOptions(options);
+        }
+
+        try {
+          const ipResponse = await fetch('https://ipapi.co/json/');
+          if (ipResponse.ok && isMounted) {
+            const ipData = await ipResponse.json();
+            const detectedIso = ipData?.country_code;
+            if (detectedIso) {
+              const match = options.find((o) => o.isoCode === detectedIso);
+              if (match && setFieldValueRef.current) {
+                setFieldValueRef.current('countryIsoCode', match.isoCode);
+                setFieldValueRef.current('countryCode', match.dialCode);
+              }
+            }
+          }
+        } catch {
+          // Keep default country when IP detection fails.
         }
       } catch {
         // Keep fallback options when external country metadata fails to load.
@@ -277,6 +295,7 @@ export default function AuthRegister() {
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, status, touched, values, setFieldValue }) => (
           (() => {
+            setFieldValueRef.current = setFieldValue;
             const selectedCountry = countryOptions.find((option) => option.isoCode === values.countryIsoCode) ?? null;
 
             return (
