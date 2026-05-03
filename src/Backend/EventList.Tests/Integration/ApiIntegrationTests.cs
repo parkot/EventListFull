@@ -47,6 +47,18 @@ public sealed class ApiIntegrationTests : IClassFixture<TestApiFactory>
     }
 
     [Fact]
+    public async Task LoginEndpoint_ShouldReturnBadRequest_ForInvalidCredentials()
+    {
+        var response = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("missing@eventlist.local", "wrong-password"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetailsResponse>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Detail.Should().Be("Invalid email or password.");
+    }
+
+    [Fact]
     public async Task EventGuestRsvpFlow_ShouldUpdateEventStats()
     {
         var createdEvent = await PostAsync<CreateEventRequest, EventSummaryResponse>(
@@ -119,6 +131,8 @@ public sealed class ApiIntegrationTests : IClassFixture<TestApiFactory>
     }
 
     private sealed record UserMeResponse(string Email);
+    private sealed record LoginRequest(string Email, string Password);
+    private sealed record ProblemDetailsResponse(string Detail);
 
     private sealed record CreateEventRequest(
         string Title,

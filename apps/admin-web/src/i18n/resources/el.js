@@ -285,6 +285,18 @@ const el = {
       confirmPasswordRequired: 'Παρακαλώ επιβεβαιώστε τον κωδικό σας',
       passwordsMustMatch: 'Οι κωδικοί πρέπει να ταιριάζουν'
     },
+    confirmEmail: {
+      title: 'Επιβεβαιώστε τη διεύθυνση email σας',
+      backToLogin: 'Επιστροφή στη σύνδεση',
+      instructions: 'Πατήστε το κουμπί για να επιβεβαιώσετε τη διεύθυνση email σας.',
+      button: 'Επιβεβαίωση email',
+      successTitle: 'Ευχαριστούμε!',
+      successMessage: 'Η διεύθυνση email σας επιβεβαιώθηκε. Τώρα μπορείτε να συνδεθείτε.',
+      checkInboxTitle: 'Ελέγξτε τα εισερχόμενα',
+      checkInboxMessage: 'Στείλαμε σύνδεσμο επιβεβαίωσης. Ανοίξτε τον για να επαληθεύσετε το email σας.',
+      checkInboxEmail: 'Το email επιβεβαίωσης στάλθηκε στο: {{email}}',
+      error: 'Αδυναμία επιβεβαίωσης email τώρα. Ο σύνδεσμος μπορεί να είναι άκυρος ή να έχει λήξει.'
+    },
     register: {
       title: 'Εγγραφή',
       haveAccount: 'Έχετε ήδη λογαριασμό;',
@@ -305,7 +317,7 @@ const el = {
       unableToRegister: 'Αδυναμία δημιουργίας λογαριασμού αυτή τη στιγμή. Προσπαθήστε ξανά.',
       emailAlreadyExists: 'Υπάρχει ήδη λογαριασμός με αυτό το email. Παρακαλώ συνδεθείτε.',
       goToLogin: 'Μετάβαση στη Σύνδεση',
-      successToast: 'Ο λογαριασμός δημιουργήθηκε. Ανακατεύθυνση...',
+      successToast: 'Ο λογαριασμός δημιουργήθηκε. Ελέγξτε το email σας για επιβεβαίωση.',
       welcome: {
         defaultName: 'φίλε',
         title: 'Καλώς ήρθες, {{firstName}}',

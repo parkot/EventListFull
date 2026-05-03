@@ -27,8 +27,7 @@ import { Formik } from 'formik';
 // project imports
 import IconButton from 'components/@extended/IconButton';
 import AnimateButton from 'components/@extended/AnimateButton';
-import { loginUser, registerUser } from 'api/auth';
-import { saveAuthSession } from 'utils/auth';
+import { registerUser } from 'api/auth';
 
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
 
@@ -140,6 +139,9 @@ export default function AuthRegister() {
     }
   };
 
+  const isDuplicateEmailError = (statusCode, apiError) =>
+    statusCode === 409 || apiError === 'Email address is already registered.';
+
   const getLocalTimeZone = () => {
     try {
       return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -233,51 +235,36 @@ export default function AuthRegister() {
           submit: null
         }}
         validationSchema={validationSchema}
-        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+        onSubmit={async (values, { setErrors, setFieldTouched, setStatus, setSubmitting }) => {
           try {
             const registerResponse = await registerUser({
               email: values.email.trim(),
               password: values.password,
               preferredLanguage: i18n.language || 'en',
-              timeZone: getLocalTimeZone()
+              timeZone: getLocalTimeZone(),
+              confirmEmailBaseUrl: `${window.location.origin}/confirm-email`
             });
 
             if (!registerResponse.ok) {
-              if (registerResponse.status === 409) {
+              const apiError = await extractApiError(registerResponse);
+
+              if (isDuplicateEmailError(registerResponse.status, apiError)) {
                 setStatus({ success: false, duplicateEmail: true });
-                setErrors({ submit: t('auth.register.emailAlreadyExists') });
+                setFieldTouched('email', true, false);
+                setErrors({ email: t('auth.register.emailAlreadyExists') });
                 return;
               }
 
-              const apiError = await extractApiError(registerResponse);
               setStatus({ success: false, duplicateEmail: false });
               setErrors({ submit: apiError || t('auth.register.unableToRegister') });
               return;
-            }
-
-            const loginResponse = await loginUser({
-              email: values.email.trim(),
-              password: values.password
-            });
-
-            if (loginResponse.ok) {
-              const loginData = await loginResponse.json();
-
-              saveAuthSession({
-                accessToken: loginData?.accessToken,
-                refreshToken: loginData?.refreshToken,
-                expiresAtUtc: loginData?.expiresAtUtc,
-                refreshTokenExpiresAtUtc: loginData?.refreshTokenExpiresAtUtc,
-                sessionId: loginData?.sessionId,
-                user: loginData?.user
-              });
             }
 
             setStatus({ success: true, duplicateEmail: false });
             setIsSuccessToastOpen(true);
 
             redirectTimerRef.current = window.setTimeout(() => {
-              navigate('/register/welcome', {
+              navigate('/confirm-email', {
                 replace: true,
                 state: {
                   firstName: values.firstname,

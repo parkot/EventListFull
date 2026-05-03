@@ -13,6 +13,7 @@ using EventList.Domain.Templates;
 using EventList.Infrastructure;
 using EventList.Infrastructure.Accounts;
 using EventList.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -26,6 +27,7 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 }
+builder.Services.AddProblemDetails();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -71,6 +73,33 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 await app.Services.InitializeDatabaseAsync();
+
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        var (statusCode, title, detail) = exception switch
+        {
+            InvalidOperationException invalidOperationException =>
+                (StatusCodes.Status400BadRequest, "Request could not be processed.", invalidOperationException.Message),
+            _ =>
+                (StatusCodes.Status500InternalServerError, "An unexpected error occurred.", (string?)null)
+        };
+
+        if (exception is not null)
+        {
+            app.Logger.LogWarning(exception, "Request failed with status code {StatusCode}.", statusCode);
+        }
+
+        context.Response.StatusCode = statusCode;
+
+        await Results.Problem(
+            statusCode: statusCode,
+            title: title,
+            detail: detail).ExecuteAsync(context);
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {

@@ -18,9 +18,10 @@ internal sealed class SmtpNotificationSink(
     private readonly IEmailTemplateService _emailTemplateService = emailTemplateService;
     private readonly ILogger<SmtpNotificationSink> _logger = logger;
 
-    public async Task SendEmailConfirmationAsync(User user, string token, CancellationToken cancellationToken = default)
+    public async Task SendEmailConfirmationAsync(User user, string token, string? confirmEmailBaseUrl = null, CancellationToken cancellationToken = default)
     {
-        var link = BuildTokenLink(_smtp.ConfirmEmailBaseUrl, token);
+        var baseUrl = !string.IsNullOrWhiteSpace(confirmEmailBaseUrl) ? confirmEmailBaseUrl : _smtp.ConfirmEmailBaseUrl;
+        var link = BuildTokenLink(baseUrl, token);
 
         var template = await _emailTemplateService.ResolveTemplateAsync(
             EmailTemplateType.UserRegistrationConfirm,

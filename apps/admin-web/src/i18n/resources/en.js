@@ -283,6 +283,18 @@ const en = {
       confirmPasswordRequired: 'Please confirm your password',
       passwordsMustMatch: 'Passwords must match'
     },
+    confirmEmail: {
+      title: 'Confirm your email address',
+      backToLogin: 'Back to login',
+      instructions: 'Click the button below to confirm your email address.',
+      button: 'Confirm Email Address',
+      successTitle: 'Thank you!',
+      successMessage: 'Your email address has been confirmed. You can now sign in.',
+      checkInboxTitle: 'Check your inbox',
+      checkInboxMessage: 'We sent you a confirmation link. Open it to verify your email address.',
+      checkInboxEmail: 'Confirmation email sent to: {{email}}',
+      error: 'Unable to confirm your email right now. The link may be invalid or expired.'
+    },
     register: {
       title: 'Sign up',
       haveAccount: 'Already have an account?',
@@ -303,7 +315,7 @@ const en = {
       unableToRegister: 'Unable to create your account right now. Please try again.',
       emailAlreadyExists: 'An account with this email already exists. Please login instead.',
       goToLogin: 'Go to Login',
-      successToast: 'Account created successfully. Redirecting...',
+      successToast: 'Account created. Check your email to confirm your address.',
       welcome: {
         defaultName: 'there',
         title: 'Welcome, {{firstName}}',

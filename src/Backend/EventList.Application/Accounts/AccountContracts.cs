@@ -26,11 +26,11 @@ public interface IJwtTokenService
 
 public interface INotificationSink
 {
-    Task SendEmailConfirmationAsync(User user, string token, CancellationToken cancellationToken = default);
+    Task SendEmailConfirmationAsync(User user, string token, string? confirmEmailBaseUrl = null, CancellationToken cancellationToken = default);
     Task SendPasswordResetAsync(User user, string token, string? resetPasswordBaseUrl = null, CancellationToken cancellationToken = default);
 }
 
-public sealed record RegisterUserRequest(string Email, string Password, string PreferredLanguage, string TimeZone = "UTC");
+public sealed record RegisterUserRequest(string Email, string Password, string PreferredLanguage, string TimeZone = "UTC", string? ConfirmEmailBaseUrl = null);
 
 public sealed record LoginRequest(string Email, string Password);
 

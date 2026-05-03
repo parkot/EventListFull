@@ -11,7 +11,7 @@ export function loginUser({ email, password }) {
   });
 }
 
-export function registerUser({ email, password, preferredLanguage, timeZone = 'UTC' }) {
+export function registerUser({ email, password, preferredLanguage, timeZone = 'UTC', confirmEmailBaseUrl }) {
   return apiRequest('/api/auth/register', {
     method: 'POST',
     auth: false,
@@ -19,7 +19,16 @@ export function registerUser({ email, password, preferredLanguage, timeZone = 'U
       email,
       password,
       preferredLanguage,
-      timeZone
+      timeZone,
+      confirmEmailBaseUrl
     })
+  });
+}
+
+export function confirmEmail({ token }) {
+  return apiRequest('/api/auth/confirm-email', {
+    method: 'POST',
+    auth: false,
+    body: JSON.stringify({ token })
   });
 }

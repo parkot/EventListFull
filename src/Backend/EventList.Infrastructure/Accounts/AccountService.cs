@@ -52,7 +52,7 @@ public sealed class AccountService(
         _dbContext.VerificationTokens.Add(token.StoredToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _notificationSink.SendEmailConfirmationAsync(user, token.RawToken, cancellationToken);
+        await _notificationSink.SendEmailConfirmationAsync(user, token.RawToken, request.ConfirmEmailBaseUrl, cancellationToken);
 
         return new RegistrationResult(user.Id, true);
     }
@@ -420,7 +420,7 @@ internal sealed class DevelopmentNotificationSink(ILogger<DevelopmentNotificatio
 {
     private readonly ILogger<DevelopmentNotificationSink> _logger = logger;
 
-    public Task SendEmailConfirmationAsync(User user, string token, CancellationToken cancellationToken = default)
+    public Task SendEmailConfirmationAsync(User user, string token, string? confirmEmailBaseUrl = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Email confirmation token for {Email}: {Token}", user.Email, token);
         return Task.CompletedTask;

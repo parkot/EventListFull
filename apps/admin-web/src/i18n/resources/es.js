@@ -283,6 +283,18 @@ const es = {
       confirmPasswordRequired: 'Por favor confirma tu contrasena',
       passwordsMustMatch: 'Las contrasenas deben coincidir'
     },
+    confirmEmail: {
+      title: 'Confirma tu direccion de correo',
+      backToLogin: 'Volver al inicio de sesion',
+      instructions: 'Haz clic en el boton para confirmar tu direccion de correo.',
+      button: 'Confirmar correo',
+      successTitle: 'Gracias!',
+      successMessage: 'Tu direccion de correo fue confirmada. Ya puedes iniciar sesion.',
+      checkInboxTitle: 'Revisa tu bandeja de entrada',
+      checkInboxMessage: 'Te enviamos un enlace de confirmacion. Abrelo para verificar tu correo.',
+      checkInboxEmail: 'Correo de confirmacion enviado a: {{email}}',
+      error: 'No se pudo confirmar tu correo ahora. El enlace puede ser invalido o haber expirado.'
+    },
     register: {
       title: 'Registrarse',
       haveAccount: '¿Ya tienes una cuenta?',
@@ -303,7 +315,7 @@ const es = {
       unableToRegister: 'No se puede crear tu cuenta ahora. Por favor intenta de nuevo.',
       emailAlreadyExists: 'Ya existe una cuenta con este correo. Por favor inicia sesion.',
       goToLogin: 'Ir a Iniciar sesion',
-      successToast: 'Cuenta creada correctamente. Redirigiendo...',
+      successToast: 'Cuenta creada. Revisa tu correo para confirmar tu direccion.',
       welcome: {
         defaultName: 'amigo',
         title: 'Bienvenido, {{firstName}}',
