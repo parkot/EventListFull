@@ -3,7 +3,7 @@ import { clearAuthSession, getAccessToken, getAuthSession, updateAuthSession } f
 let refreshPromise = null;
 
 export function getApiBaseUrl() {
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5201';
+  return import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5201' : 'https://eventlistapi.2pix.gr');
 }
 
 function buildHeaders(headers = {}) {
