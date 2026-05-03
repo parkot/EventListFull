@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<IDeliveryService, DeliveryService>();
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+        services.AddScoped<IEventTemplateService, EventTemplateService>();
         services.AddScoped<IPersonService, PersonService>();
         services.AddScoped<ITemplateService, TemplateService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
@@ -67,6 +68,68 @@ public static class DependencyInjection
         await accountService.EnsureBootstrapAdminAsync();
         await EnsureBillingSeedDataAsync(dbContext);
         await EnsureEmailTemplateSeedDataAsync(dbContext);
+        await EnsureEventTemplateSeedDataAsync(dbContext);
+    }
+
+    private static async Task EnsureEventTemplateSeedDataAsync(ApplicationDbContext dbContext)
+    {
+        var defaults = new[]
+        {
+            new
+            {
+                Name = "Classic Invitation",
+                Language = "en",
+                Body = "<p>Hello {{GuestName}},</p><p>You are invited to <strong>{{EventTitle}}</strong>.</p><p>Date: {{EventDateUtc}}</p><p>Venue: {{Venue}}, {{Address}}</p><p><a href=\"{{InvitationLink}}\">Open invitation</a></p>"
+            },
+            new
+            {
+                Name = "Classic Invitation",
+                Language = "es",
+                Body = "<p>Hola {{GuestName}},</p><p>Estas invitado a <strong>{{EventTitle}}</strong>.</p><p>Fecha: {{EventDateUtc}}</p><p>Lugar: {{Venue}}, {{Address}}</p><p><a href=\"{{InvitationLink}}\">Abrir invitacion</a></p>"
+            },
+            new
+            {
+                Name = "Classic Invitation",
+                Language = "el",
+                Body = "<p>Geia sou {{GuestName}},</p><p>Eisai proskeklimenos sto <strong>{{EventTitle}}</strong>.</p><p>Imerominia: {{EventDateUtc}}</p><p>Choros: {{Venue}}, {{Address}}</p><p><a href=\"{{InvitationLink}}\">Anoigma prosklisis</a></p>"
+            },
+            new
+            {
+                Name = "Minimal Invitation",
+                Language = "en",
+                Body = "<p>{{GuestName}},</p><p>{{EventTitle}}</p><p>{{EventDateUtc}}</p><p>{{Venue}}</p><p>{{InvitationLink}}</p>"
+            },
+            new
+            {
+                Name = "Minimal Invitation",
+                Language = "es",
+                Body = "<p>{{GuestName}},</p><p>{{EventTitle}}</p><p>{{EventDateUtc}}</p><p>{{Venue}}</p><p>{{InvitationLink}}</p>"
+            },
+            new
+            {
+                Name = "Minimal Invitation",
+                Language = "el",
+                Body = "<p>{{GuestName}},</p><p>{{EventTitle}}</p><p>{{EventDateUtc}}</p><p>{{Venue}}</p><p>{{InvitationLink}}</p>"
+            }
+        };
+
+        foreach (var template in defaults)
+        {
+            var exists = await dbContext.EventTemplates.AnyAsync(x => x.Name == template.Name && x.Language == template.Language);
+            if (exists)
+            {
+                continue;
+            }
+
+            dbContext.EventTemplates.Add(new EventTemplate
+            {
+                Name = template.Name,
+                Language = template.Language,
+                Body = template.Body
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 
     private static async Task EnsureEmailTemplateSeedDataAsync(ApplicationDbContext dbContext)

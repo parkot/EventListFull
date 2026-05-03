@@ -12,7 +12,8 @@ const es = {
   },
   header: {
     downloadFreeVersion: 'Descargar version gratis',
-    searchPlaceholder: 'Ctrl + K'
+    searchPlaceholder: 'Ctrl + K',
+    wizard: 'Asistente'
   },
   menu: {
     navigation: 'Navegacion',
@@ -22,6 +23,7 @@ const es = {
     administrators: 'Administradores',
     users: 'Usuarios',
     emailTemplates: 'Plantillas de correo',
+    eventTemplates: 'Plantillas de evento',
     authentication: 'Autenticacion',
     login: 'Iniciar sesion',
     register: 'Registrarse',
@@ -142,6 +144,84 @@ const es = {
       defaultLanguageRequired: 'El idioma predeterminado es obligatorio'
     }
   },
+  wizardPage: {
+    title: 'Asistente de creacion de eventos',
+    loading: 'Cargando datos del asistente...',
+    steps: {
+      createEvent: 'Crear evento',
+      selectTemplate: 'Seleccionar plantilla',
+      selectPeople: 'Seleccionar personas',
+      preview: 'Vista previa',
+      confirmAndSend: 'Confirmar y enviar'
+    },
+    actions: {
+      backToEvents: 'Volver a eventos',
+      back: 'Atras',
+      next: 'Siguiente'
+    },
+    form: {
+      title: 'Titulo del evento',
+      occasionType: 'Tipo de ocasion',
+      scheduledDateTime: 'Fecha y hora programadas',
+      venue: 'Lugar',
+      address: 'Direccion',
+      defaultLanguage: 'Idioma predeterminado',
+      timeZone: 'Zona horaria'
+    },
+    table: {
+      name: 'Nombre',
+      email: 'Correo',
+      phone: 'Telefono'
+    },
+    preview: {
+      eventSummary: 'Resumen del evento',
+      title: 'Titulo',
+      occasion: 'Ocasion',
+      when: 'Cuando',
+      venue: 'Lugar',
+      address: 'Direccion',
+      timeZone: 'Zona horaria',
+      defaultLanguage: 'Idioma predeterminado',
+      selectedTemplate: 'Plantilla seleccionada',
+      noTemplateSelected: 'No hay plantilla seleccionada',
+      recipients: 'Destinatarios',
+      peopleSelected: '{{count}} personas seleccionadas'
+    },
+    confirm: {
+      description: 'Listo para crear el evento, adjuntar las personas seleccionadas como invitados y enviar invitaciones.',
+      confirmAndSend: 'Confirmar y enviar',
+      eventId: 'Id del evento'
+    },
+    warnings: {
+      noTemplates: 'No se encontraron plantillas de invitacion. Crea al menos una plantilla para poder enviar invitaciones.',
+      noPeople: 'No se encontraron personas. Agrega personas primero desde la pagina Personas.'
+    },
+    validation: {
+      titleRequired: 'El titulo del evento es obligatorio.',
+      occasionTypeRequired: 'El tipo de ocasion es obligatorio.',
+      scheduledRequired: 'La fecha y hora son obligatorias.',
+      venueRequired: 'El lugar es obligatorio.',
+      addressRequired: 'La direccion es obligatoria.',
+      timeZoneRequired: 'La zona horaria es obligatoria.',
+      templateRequired: 'Selecciona una plantilla.',
+      peopleRequired: 'Selecciona al menos una persona.'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API backend. Verifica que EventList.Api este ejecutandose.',
+      loadTemplates: 'Error al cargar plantillas.',
+      loadPeople: 'Error al cargar personas.',
+      loadWizardData: 'Error al cargar los datos del asistente.',
+      createEvent: 'Error al crear el evento.',
+      updateEvent: 'Error al actualizar el evento.',
+      eventIdMissing: 'La API de eventos no devolvio un id de evento.',
+      addGuests: 'Error al agregar las personas seleccionadas como invitados.',
+      sendInvitations: 'Error al enviar invitaciones.',
+      completeWizard: 'Error al completar el asistente.'
+    },
+    success: {
+      sent: 'Las invitaciones se enviaron correctamente.'
+    }
+  },
   publicInvitation: {
     title: 'Invitacion',
     loading: 'Cargando invitacion...',
@@ -188,6 +268,20 @@ const es = {
       button: 'Enviar enlace de recuperacion',
       success: 'Si el correo existe, se envio un enlace de recuperacion.',
       error: 'No se pudo enviar el enlace ahora. Intenta de nuevo.'
+    },
+    resetPassword: {
+      title: 'Restablecer contrasena',
+      backToLogin: 'Volver al inicio de sesion',
+      passwordLabel: 'Nueva contrasena',
+      passwordPlaceholder: 'Ingresa tu nueva contrasena',
+      confirmPasswordLabel: 'Confirmar contrasena',
+      confirmPasswordPlaceholder: 'Repite la nueva contrasena',
+      button: 'Restablecer contrasena',
+      success: 'Tu contrasena fue restablecida exitosamente. Ya puedes iniciar sesion.',
+      error: 'No se pudo restablecer la contrasena. El enlace puede haber expirado.',
+      invalidToken: 'Token invalido o faltante. Solicita un nuevo enlace de recuperacion.',
+      confirmPasswordRequired: 'Por favor confirma tu contrasena',
+      passwordsMustMatch: 'Las contrasenas deben coincidir'
     },
     register: {
       title: 'Registrarse',
@@ -281,6 +375,44 @@ const es = {
       subjectBodyRequired: 'El asunto y el cuerpo son obligatorios.',
       recipientRequired: 'El correo del destinatario es obligatorio.',
       invalidEmail: 'Por favor, introduce una dirección de correo válida.'
+    }
+  },
+  eventTemplates: {
+    title: 'Plantillas de evento',
+    newTemplate: 'Nueva plantilla',
+    adminOnly: 'Esta pagina solo esta disponible para administradores.',
+    filterByLanguage: 'Filtrar por idioma',
+    all: 'Todos',
+    search: 'Buscar',
+    searchPlaceholder: 'Nombre, cuerpo',
+    loading: 'Cargando plantillas...',
+    noTemplates: 'Ninguna plantilla coincide con los filtros actuales.',
+    edit: 'Editar',
+    table: {
+      action: 'Accion',
+      name: 'Nombre',
+      language: 'Idioma',
+      created: 'Creado'
+    },
+    dialog: {
+      saveTitle: 'Guardar plantilla de evento',
+      nameLabel: 'Nombre',
+      languageLabel: 'Idioma',
+      bodyLabel: 'Cuerpo (HTML)',
+      bodyHelper: 'Marcadores compatibles: {{GuestName}}, {{EventTitle}}, {{EventDateUtc}}, {{Venue}}, {{Address}}, {{InvitationLink}}, {{ScanCode}}, {{TableNumber}}',
+      livePreview: 'Vista previa',
+      previewCaption: 'La vista previa usa valores de muestra para verificar los marcadores antes de guardar.',
+      cancel: 'Cancelar',
+      save: 'Guardar'
+    },
+    success: {
+      saved: 'Plantilla de evento guardada correctamente.'
+    },
+    errors: {
+      backendUnavailable: 'No se puede alcanzar la API en {{baseUrl}}. Inicia la API con: dotnet run --project src/Backend/EventList.Api',
+      load: 'Error al cargar las plantillas de evento.',
+      save: 'Error al guardar la plantilla de evento.',
+      nameBodyRequired: 'El nombre y el cuerpo son obligatorios.'
     }
   },
   usersPage: {

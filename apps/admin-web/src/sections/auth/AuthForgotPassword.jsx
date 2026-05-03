@@ -46,7 +46,10 @@ export default function AuthForgotPassword() {
           const response = await apiRequest('/api/auth/forgot-password', {
             method: 'POST',
             auth: false,
-            body: JSON.stringify({ email: values.email })
+            body: JSON.stringify({
+              email: values.email,
+              resetPasswordBaseUrl: `${window.location.origin}/reset-password`
+            })
           });
 
           if (!response.ok) {

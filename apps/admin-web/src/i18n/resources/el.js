@@ -12,7 +12,8 @@ const el = {
   },
   header: {
     downloadFreeVersion: 'Λήψη δωρεάν έκδοσης',
-    searchPlaceholder: 'Ctrl + K'
+    searchPlaceholder: 'Ctrl + K',
+    wizard: 'Οδηγος'
   },
   menu: {
     navigation: 'Πλοήγηση',
@@ -22,6 +23,7 @@ const el = {
     administrators: 'Διαχειριστές',
     users: 'Χρήστες',
     emailTemplates: 'Πρότυπα email',
+    eventTemplates: 'Πρότυπα εκδηλώσεων',
     authentication: 'Αυθεντικοποίηση',
     login: 'Σύνδεση',
     register: 'Εγγραφή',
@@ -143,6 +145,84 @@ const el = {
       defaultLanguageRequired: 'Η προεπιλεγμένη γλώσσα είναι υποχρεωτική'
     }
   },
+  wizardPage: {
+    title: 'Οδηγος δημιουργιας εκδηλωσης',
+    loading: 'Φορτωση δεδομενων οδηγου...',
+    steps: {
+      createEvent: 'Δημιουργια εκδηλωσης',
+      selectTemplate: 'Επιλογη προτυπου',
+      selectPeople: 'Επιλογη ατομων',
+      preview: 'Προεπισκοπηση',
+      confirmAndSend: 'Επιβεβαιωση και αποστολη'
+    },
+    actions: {
+      backToEvents: 'Επιστροφη στις εκδηλωσεις',
+      back: 'Πισω',
+      next: 'Επομενο'
+    },
+    form: {
+      title: 'Τιτλος εκδηλωσης',
+      occasionType: 'Τυπος περιστασης',
+      scheduledDateTime: 'Προγραμματισμενη ημερομηνια και ωρα',
+      venue: 'Χωρος',
+      address: 'Διευθυνση',
+      defaultLanguage: 'Προεπιλεγμενη γλωσσα',
+      timeZone: 'Ζωνη ωρας'
+    },
+    table: {
+      name: 'Ονομα',
+      email: 'Email',
+      phone: 'Τηλεφωνο'
+    },
+    preview: {
+      eventSummary: 'Συνοψη εκδηλωσης',
+      title: 'Τιτλος',
+      occasion: 'Περισταση',
+      when: 'Ποτε',
+      venue: 'Χωρος',
+      address: 'Διευθυνση',
+      timeZone: 'Ζωνη ωρας',
+      defaultLanguage: 'Προεπιλεγμενη γλωσσα',
+      selectedTemplate: 'Επιλεγμενο προτυπο',
+      noTemplateSelected: 'Δεν επιλεχθηκε προτυπο',
+      recipients: 'Παραληπτες',
+      peopleSelected: '{{count}} ατομα επιλεγμενα'
+    },
+    confirm: {
+      description: 'Ετοιμο για δημιουργια εκδηλωσης, προσθηκη επιλεγμενων ατομων ως καλεσμενων και αποστολη προσκλησεων.',
+      confirmAndSend: 'Επιβεβαιωση και αποστολη',
+      eventId: 'Id εκδηλωσης'
+    },
+    warnings: {
+      noTemplates: 'Δεν βρεθηκαν προτυπα προσκλησης. Δημιουργηστε τουλαχιστον ενα προτυπο για να σταλουν προσκλησεις.',
+      noPeople: 'Δεν βρεθηκαν ατομα. Προσθεστε ατομα πρωτα απο τη σελιδα Ατομα.'
+    },
+    validation: {
+      titleRequired: 'Ο τιτλος εκδηλωσης ειναι υποχρεωτικος.',
+      occasionTypeRequired: 'Ο τυπος περιστασης ειναι υποχρεωτικος.',
+      scheduledRequired: 'Η ημερομηνια και η ωρα ειναι υποχρεωτικες.',
+      venueRequired: 'Ο χωρος ειναι υποχρεωτικος.',
+      addressRequired: 'Η διευθυνση ειναι υποχρεωτικη.',
+      timeZoneRequired: 'Η ζωνη ωρας ειναι υποχρεωτικη.',
+      templateRequired: 'Επιλεξτε προτυπο.',
+      peopleRequired: 'Επιλεξτε τουλαχιστον ενα ατομο.'
+    },
+    errors: {
+      backendUnavailable: 'Αδυναμια προσβασης στο backend API. Βεβαιωθειτε οτι το EventList.Api εκτελειται.',
+      loadTemplates: 'Αποτυχια φορτωσης προτυπων.',
+      loadPeople: 'Αποτυχια φορτωσης ατομων.',
+      loadWizardData: 'Αποτυχια φορτωσης δεδομενων οδηγου.',
+      createEvent: 'Αποτυχια δημιουργιας εκδηλωσης.',
+      updateEvent: 'Αποτυχια ενημερωσης εκδηλωσης.',
+      eventIdMissing: 'Το API εκδηλωσεων δεν επεστρεψε id εκδηλωσης.',
+      addGuests: 'Αποτυχια προσθηκης επιλεγμενων ατομων ως καλεσμενων.',
+      sendInvitations: 'Αποτυχια αποστολης προσκλησεων.',
+      completeWizard: 'Αποτυχια ολοκληρωσης οδηγου.'
+    },
+    success: {
+      sent: 'Οι προσκλησεις σταλθηκαν επιτυχως.'
+    }
+  },
   publicInvitation: {
     title: 'Πρόσκληση',
     loading: 'Φόρτωση πρόσκλησης...',
@@ -190,6 +270,20 @@ const el = {
       button: 'Αποστολή συνδέσμου επαναφοράς',
       success: 'Αν υπάρχει το email, στάλθηκε σύνδεσμος επαναφοράς.',
       error: 'Αδυναμία αποστολής συνδέσμου τώρα. Δοκιμάστε ξανά.'
+    },
+    resetPassword: {
+      title: 'Επαναφορά κωδικού',
+      backToLogin: 'Επιστροφή στη σύνδεση',
+      passwordLabel: 'Νέος κωδικός',
+      passwordPlaceholder: 'Εισάγετε νέο κωδικό',
+      confirmPasswordLabel: 'Επιβεβαίωση κωδικού',
+      confirmPasswordPlaceholder: 'Επαναλάβετε τον νέο κωδικό',
+      button: 'Επαναφορά κωδικού',
+      success: 'Ο κωδικός σας επαναφέρθηκε επιτυχώς. Μπορείτε να συνδεθείτε.',
+      error: 'Αδυναμία επαναφοράς κωδικού. Ο σύνδεσμος ενδέχεται να έχει λήξει.',
+      invalidToken: 'Μη έγκυρο ή ελλιπές token. Ζητήστε νέο σύνδεσμο επαναφοράς.',
+      confirmPasswordRequired: 'Παρακαλώ επιβεβαιώστε τον κωδικό σας',
+      passwordsMustMatch: 'Οι κωδικοί πρέπει να ταιριάζουν'
     },
     register: {
       title: 'Εγγραφή',
@@ -283,6 +377,44 @@ const el = {
       subjectBodyRequired: 'Το θέμα και το κείμενο είναι υποχρεωτικά.',
       recipientRequired: 'Το email παραλήπτη είναι υποχρεωτικό.',
       invalidEmail: 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email.'
+    }
+  },
+  eventTemplates: {
+    title: 'Πρότυπα εκδηλώσεων',
+    newTemplate: 'Νέο πρότυπο',
+    adminOnly: 'Αυτή η σελίδα είναι διαθέσιμη μόνο σε διαχειριστές.',
+    filterByLanguage: 'Φιλτράρισμα ανά γλώσσα',
+    all: 'Όλα',
+    search: 'Αναζήτηση',
+    searchPlaceholder: 'Όνομα, κείμενο',
+    loading: 'Φόρτωση προτύπων...',
+    noTemplates: 'Δεν υπάρχουν πρότυπα που να ταιριάζουν με τα τρέχοντα φίλτρα.',
+    edit: 'Επεξεργασία',
+    table: {
+      action: 'Ενέργεια',
+      name: 'Όνομα',
+      language: 'Γλώσσα',
+      created: 'Δημιουργήθηκε'
+    },
+    dialog: {
+      saveTitle: 'Αποθήκευση προτύπου εκδήλωσης',
+      nameLabel: 'Όνομα',
+      languageLabel: 'Γλώσσα',
+      bodyLabel: 'Κείμενο (HTML)',
+      bodyHelper: 'Υποστηριζόμενοι δείκτες θέσης: {{GuestName}}, {{EventTitle}}, {{EventDateUtc}}, {{Venue}}, {{Address}}, {{InvitationLink}}, {{ScanCode}}, {{TableNumber}}',
+      livePreview: 'Ζωντανή προεπισκόπηση',
+      previewCaption: 'Η προεπισκόπηση χρησιμοποιεί δείγματα τιμών για επαλήθευση των δεικτών πριν την αποθήκευση.',
+      cancel: 'Ακύρωση',
+      save: 'Αποθήκευση'
+    },
+    success: {
+      saved: 'Το πρότυπο εκδήλωσης αποθηκεύτηκε με επιτυχία.'
+    },
+    errors: {
+      backendUnavailable: 'Δεν είναι δυνατή η πρόσβαση στο API στο {{baseUrl}}. Εκκινήστε το API με: dotnet run --project src/Backend/EventList.Api',
+      load: 'Αποτυχία φόρτωσης προτύπων εκδήλωσης.',
+      save: 'Αποτυχία αποθήκευσης προτύπου εκδήλωσης.',
+      nameBodyRequired: 'Το όνομα και το κείμενο είναι υποχρεωτικά.'
     }
   },
   usersPage: {

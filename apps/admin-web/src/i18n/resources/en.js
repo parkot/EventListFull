@@ -12,7 +12,8 @@ const en = {
   },
   header: {
     downloadFreeVersion: 'Download Free Version',
-    searchPlaceholder: 'Ctrl + K'
+    searchPlaceholder: 'Ctrl + K',
+    wizard: 'Wizard'
   },
   menu: {
     navigation: 'Navigation',
@@ -22,6 +23,7 @@ const en = {
     administrators: 'Administrators',
     users: 'Users',
     emailTemplates: 'Email Templates',
+    eventTemplates: 'Event Templates',
     authentication: 'Authentication',
     login: 'Login',
     register: 'Register',
@@ -142,6 +144,84 @@ const en = {
       defaultLanguageRequired: 'Default language is required'
     }
   },
+  wizardPage: {
+    title: 'Create Event Wizard',
+    loading: 'Loading wizard data...',
+    steps: {
+      createEvent: 'Create Event',
+      selectTemplate: 'Select Template',
+      selectPeople: 'Select People',
+      preview: 'Preview',
+      confirmAndSend: 'Confirm And Send'
+    },
+    actions: {
+      backToEvents: 'Back To Events',
+      back: 'Back',
+      next: 'Next'
+    },
+    form: {
+      title: 'Event title',
+      occasionType: 'Occasion type',
+      scheduledDateTime: 'Scheduled date and time',
+      venue: 'Venue',
+      address: 'Address',
+      defaultLanguage: 'Default language',
+      timeZone: 'Time zone'
+    },
+    table: {
+      name: 'Name',
+      email: 'Email',
+      phone: 'Phone'
+    },
+    preview: {
+      eventSummary: 'Event Summary',
+      title: 'Title',
+      occasion: 'Occasion',
+      when: 'When',
+      venue: 'Venue',
+      address: 'Address',
+      timeZone: 'Time zone',
+      defaultLanguage: 'Default language',
+      selectedTemplate: 'Selected Template',
+      noTemplateSelected: 'No template selected',
+      recipients: 'Recipients',
+      peopleSelected: '{{count}} people selected'
+    },
+    confirm: {
+      description: 'Ready to create the event, attach selected people as guests, and send invitations.',
+      confirmAndSend: 'Confirm And Send',
+      eventId: 'Event id'
+    },
+    warnings: {
+      noTemplates: 'No invitation templates found. Create at least one template first so the wizard can send invitations.',
+      noPeople: 'No people found. Add people first from the People page.'
+    },
+    validation: {
+      titleRequired: 'Event title is required.',
+      occasionTypeRequired: 'Occasion type is required.',
+      scheduledRequired: 'Scheduled date and time is required.',
+      venueRequired: 'Venue is required.',
+      addressRequired: 'Address is required.',
+      timeZoneRequired: 'Time zone is required.',
+      templateRequired: 'Please select a template.',
+      peopleRequired: 'Please select at least one person.'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API. Please verify EventList.Api is running.',
+      loadTemplates: 'Failed to load templates.',
+      loadPeople: 'Failed to load people.',
+      loadWizardData: 'Failed to load wizard data.',
+      createEvent: 'Failed to create event.',
+      updateEvent: 'Failed to update event.',
+      eventIdMissing: 'Event API did not return an event id.',
+      addGuests: 'Failed to add selected people as guests.',
+      sendInvitations: 'Failed to send invitations.',
+      completeWizard: 'Failed to complete wizard.'
+    },
+    success: {
+      sent: 'Invitations were sent successfully.'
+    }
+  },
   publicInvitation: {
     title: 'Invitation',
     loading: 'Loading invitation...',
@@ -188,6 +268,20 @@ const en = {
       button: 'Send Reset Link',
       success: 'If the email exists, a reset link has been sent.',
       error: 'Unable to send reset link right now. Please try again.'
+    },
+    resetPassword: {
+      title: 'Reset Password',
+      backToLogin: 'Back to login',
+      passwordLabel: 'New Password',
+      passwordPlaceholder: 'Enter new password',
+      confirmPasswordLabel: 'Confirm Password',
+      confirmPasswordPlaceholder: 'Re-enter new password',
+      button: 'Reset Password',
+      success: 'Your password has been reset successfully. You can now log in.',
+      error: 'Unable to reset password right now. The link may have expired.',
+      invalidToken: 'Invalid or missing reset token. Please request a new reset link.',
+      confirmPasswordRequired: 'Please confirm your password',
+      passwordsMustMatch: 'Passwords must match'
     },
     register: {
       title: 'Sign up',
@@ -281,6 +375,44 @@ const en = {
       subjectBodyRequired: 'Subject and body are required.',
       recipientRequired: 'Recipient email is required.',
       invalidEmail: 'Please enter a valid email address.'
+    }
+  },
+  eventTemplates: {
+    title: 'Event Templates',
+    newTemplate: 'New Template',
+    adminOnly: 'This page is available only for administrators.',
+    filterByLanguage: 'Filter by language',
+    all: 'All',
+    search: 'Search',
+    searchPlaceholder: 'Name, body',
+    loading: 'Loading templates...',
+    noTemplates: 'No templates match the current filters.',
+    edit: 'Edit',
+    table: {
+      action: 'Action',
+      name: 'Name',
+      language: 'Language',
+      created: 'Created'
+    },
+    dialog: {
+      saveTitle: 'Save Event Template',
+      nameLabel: 'Name',
+      languageLabel: 'Language',
+      bodyLabel: 'Body (HTML)',
+      bodyHelper: 'Supported placeholders: {{GuestName}}, {{EventTitle}}, {{EventDateUtc}}, {{Venue}}, {{Address}}, {{InvitationLink}}, {{ScanCode}}, {{TableNumber}}',
+      livePreview: 'Live preview',
+      previewCaption: 'Preview uses sample values so you can verify placeholders before saving.',
+      cancel: 'Cancel',
+      save: 'Save'
+    },
+    success: {
+      saved: 'Event template saved successfully.'
+    },
+    errors: {
+      backendUnavailable: 'Cannot reach backend API at {{baseUrl}}. Start API with: dotnet run --project src/Backend/EventList.Api',
+      load: 'Failed to load event templates.',
+      save: 'Failed to save event template.',
+      nameBodyRequired: 'Name and body are required.'
     }
   },
   usersPage: {

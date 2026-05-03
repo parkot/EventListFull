@@ -8,6 +8,7 @@ const LoginPage = Loadable(lazy(() => import('pages/auth/Login')));
 const RegisterPage = Loadable(lazy(() => import('pages/auth/Register')));
 const RegisterWelcomePage = Loadable(lazy(() => import('pages/auth/RegisterWelcome')));
 const ForgotPasswordPage = Loadable(lazy(() => import('pages/auth/ForgotPassword')));
+const ResetPasswordPage = Loadable(lazy(() => import('pages/auth/ResetPassword')));
 const PublicInvitationPage = Loadable(lazy(() => import('pages/public/Invitation')));
 
 // ==============================|| AUTH ROUTING ||============================== //
@@ -33,6 +34,10 @@ const LoginRoutes = {
         {
           path: '/forgot-password',
           element: <ForgotPasswordPage />
+        },
+        {
+          path: '/reset-password',
+          element: <ResetPasswordPage />
         },
         {
           path: '/invitations/:publicCode',

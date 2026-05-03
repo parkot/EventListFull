@@ -193,6 +193,9 @@ var adminUsers = app.MapGroup("/api/admin/users")
 var adminEmailTemplates = app.MapGroup("/api/admin/email-templates")
     .RequireAuthorization(policy => policy.RequireRole("Administrator"));
 
+var adminEventTemplates = app.MapGroup("/api/admin/event-templates")
+    .RequireAuthorization(policy => policy.RequireRole("Administrator"));
+
 adminUsers.MapGet("/", async (IAccountService accountService, CancellationToken cancellationToken) =>
 {
     var result = await accountService.GetUsersAsync(cancellationToken);
@@ -280,6 +283,18 @@ adminEmailTemplates.MapPost("/test", async (
 
     await client.SendMailAsync(message, cancellationToken);
     return Results.Ok(new { Message = "Test email sent." });
+});
+
+adminEventTemplates.MapGet("/", async (IEventTemplateService eventTemplateService, CancellationToken cancellationToken) =>
+{
+    var result = await eventTemplateService.GetEventTemplatesAsync(cancellationToken);
+    return Results.Ok(result);
+});
+
+adminEventTemplates.MapPut("/", async (UpsertEventTemplateRequest request, IEventTemplateService eventTemplateService, CancellationToken cancellationToken) =>
+{
+    var result = await eventTemplateService.UpsertEventTemplateAsync(request, cancellationToken);
+    return Results.Ok(result);
 });
 
 var events = app.MapGroup("/api/events").RequireAuthorization();

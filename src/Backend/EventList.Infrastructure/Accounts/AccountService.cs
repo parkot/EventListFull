@@ -137,7 +137,7 @@ public sealed class AccountService(
         _dbContext.VerificationTokens.Add(token.StoredToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _notificationSink.SendPasswordResetAsync(user, token.RawToken, cancellationToken);
+        await _notificationSink.SendPasswordResetAsync(user, token.RawToken, request.ResetPasswordBaseUrl, cancellationToken);
     }
 
     public async Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default)
@@ -426,7 +426,7 @@ internal sealed class DevelopmentNotificationSink(ILogger<DevelopmentNotificatio
         return Task.CompletedTask;
     }
 
-    public Task SendPasswordResetAsync(User user, string token, CancellationToken cancellationToken = default)
+    public Task SendPasswordResetAsync(User user, string token, string? resetPasswordBaseUrl = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Password reset token for {Email}: {Token}", user.Email, token);
         return Task.CompletedTask;

@@ -27,7 +27,7 @@ public interface IJwtTokenService
 public interface INotificationSink
 {
     Task SendEmailConfirmationAsync(User user, string token, CancellationToken cancellationToken = default);
-    Task SendPasswordResetAsync(User user, string token, CancellationToken cancellationToken = default);
+    Task SendPasswordResetAsync(User user, string token, string? resetPasswordBaseUrl = null, CancellationToken cancellationToken = default);
 }
 
 public sealed record RegisterUserRequest(string Email, string Password, string PreferredLanguage, string TimeZone = "UTC");
@@ -38,7 +38,7 @@ public sealed record RefreshTokenRequest(string RefreshToken);
 
 public sealed record ConfirmEmailRequest(string Token);
 
-public sealed record ForgotPasswordRequest(string Email);
+public sealed record ForgotPasswordRequest(string Email, string? ResetPasswordBaseUrl = null);
 
 public sealed record ResetPasswordRequest(string Token, string NewPassword);
 

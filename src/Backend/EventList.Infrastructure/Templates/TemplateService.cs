@@ -29,6 +29,8 @@ public sealed class TemplateService(ApplicationDbContext dbContext) : ITemplateS
 
     public async Task<IReadOnlyList<TemplateDto>> GetTemplatesAsync(Guid ownerUserId, CancellationToken cancellationToken = default)
     {
+        await EnsureGlobalTemplatesForOwnerAsync(ownerUserId, cancellationToken);
+
         return await _dbContext.InvitationTemplates
             .AsNoTracking()
             .Where(x => x.OwnerUserId == ownerUserId)
@@ -39,6 +41,50 @@ public sealed class TemplateService(ApplicationDbContext dbContext) : ITemplateS
 
     private static TemplateDto Map(InvitationTemplate entity) =>
         new(entity.Id, entity.Name, entity.Channel, entity.Language, entity.SubjectTemplate, entity.BodyTemplate, entity.CreatedAtUtc);
+
+    private async Task EnsureGlobalTemplatesForOwnerAsync(Guid ownerUserId, CancellationToken cancellationToken)
+    {
+        var existingTemplates = await _dbContext.InvitationTemplates
+            .AsNoTracking()
+            .Where(x => x.OwnerUserId == ownerUserId)
+            .Select(x => new { x.Name, x.Language })
+            .ToListAsync(cancellationToken);
+
+        var existingNameSet = existingTemplates
+            .Select(x => $"{x.Name.Trim()}::{NormalizeLanguage(x.Language)}")
+            .Where(x => !x.StartsWith("::", StringComparison.Ordinal))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var globalTemplates = await _dbContext.EventTemplates
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+
+        foreach (var globalTemplate in globalTemplates)
+        {
+            var name = globalTemplate.Name.Trim();
+            var language = NormalizeLanguage(globalTemplate.Language);
+            var key = $"{name}::{language}";
+            if (string.IsNullOrWhiteSpace(name) || existingNameSet.Contains(key))
+            {
+                continue;
+            }
+
+            _dbContext.InvitationTemplates.Add(new InvitationTemplate
+            {
+                OwnerUserId = ownerUserId,
+                Name = name,
+                Channel = DeliveryChannel.Email,
+                Language = language,
+                SubjectTemplate = "Invitation: {{EventTitle}}",
+                BodyTemplate = globalTemplate.Body.Trim()
+            });
+
+            existingNameSet.Add(key);
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 
     private static string NormalizeLanguage(string value) => string.IsNullOrWhiteSpace(value) ? "en" : value.Trim().ToLowerInvariant();
 }

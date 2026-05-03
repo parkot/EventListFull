@@ -17,6 +17,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Guest> Guests => Set<Guest>();
     public DbSet<Invitation> Invitations => Set<Invitation>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
+    public DbSet<EventTemplate> EventTemplates => Set<EventTemplate>();
     public DbSet<InvitationTemplate> InvitationTemplates => Set<InvitationTemplate>();
     public DbSet<Person> People => Set<Person>();
     public DbSet<UserEntitlement> UserEntitlements => Set<UserEntitlement>();
@@ -127,6 +128,16 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.Subject).HasMaxLength(256).IsRequired();
             entity.Property(x => x.Body).HasMaxLength(12000).IsRequired();
             entity.HasIndex(x => new { x.Type, x.Language }).IsUnique();
+        });
+
+        modelBuilder.Entity<EventTemplate>(entity =>
+        {
+            entity.ToTable("EventTemplates");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Name).HasMaxLength(128).IsRequired();
+            entity.Property(x => x.Language).HasMaxLength(16).IsRequired();
+            entity.Property(x => x.Body).HasMaxLength(12000).IsRequired();
+            entity.HasIndex(x => new { x.Name, x.Language }).IsUnique();
         });
 
             modelBuilder.Entity<Person>(entity =>

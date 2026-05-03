@@ -1,8 +1,9 @@
 // assets
-import { MailOutlined, UserOutlined } from '@ant-design/icons';
+import { FileTextOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
+  FileTextOutlined,
   MailOutlined,
   UserOutlined
 };
@@ -33,6 +34,16 @@ const administrators = {
       type: 'item',
       url: '/admin/email-templates',
       icon: icons.MailOutlined,
+      roles: ['Administrator'],
+      breadcrumbs: false
+    },
+    {
+      id: 'admin-event-templates',
+      title: 'Event Templates',
+      i18nKey: 'menu.eventTemplates',
+      type: 'item',
+      url: '/admin/event-templates',
+      icon: icons.FileTextOutlined,
       roles: ['Administrator'],
       breadcrumbs: false
     }

@@ -39,9 +39,10 @@ internal sealed class SmtpNotificationSink(
         await SendAsync(user.Email, subject, body, cancellationToken);
     }
 
-    public async Task SendPasswordResetAsync(User user, string token, CancellationToken cancellationToken = default)
+    public async Task SendPasswordResetAsync(User user, string token, string? resetPasswordBaseUrl = null, CancellationToken cancellationToken = default)
     {
-        var link = BuildTokenLink(_smtp.ResetPasswordBaseUrl, token);
+        var baseUrl = !string.IsNullOrWhiteSpace(resetPasswordBaseUrl) ? resetPasswordBaseUrl : _smtp.ResetPasswordBaseUrl;
+        var link = BuildTokenLink(baseUrl, token);
 
         var template = await _emailTemplateService.ResolveTemplateAsync(
             EmailTemplateType.PasswordReset,
