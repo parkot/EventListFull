@@ -37,12 +37,14 @@ var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<Jw
 
 var allowedCorsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:3000", "https://localhost:3000", "http://localhost:5173", "https://localhost:5173"];
+var allowedCorsOriginSuffixes = builder.Configuration.GetSection("Cors:AllowedOriginSuffixes").Get<string[]>()
+    ?? [];
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AdminWebClient", policy =>
     {
-        policy.WithOrigins(allowedCorsOrigins)
+        policy.SetIsOriginAllowed(origin => IsOriginAllowed(origin, allowedCorsOrigins, allowedCorsOriginSuffixes))
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -548,6 +550,38 @@ static bool TryGetUserId(ClaimsPrincipal claimsPrincipal, out Guid userId)
 {
     var userIdValue = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
     return Guid.TryParse(userIdValue, out userId);
+}
+
+static bool IsOriginAllowed(string origin, string[] allowedOrigins, string[] allowedOriginSuffixes)
+{
+    if (string.IsNullOrWhiteSpace(origin))
+    {
+        return false;
+    }
+
+    if (Array.Exists(allowedOrigins, allowed => string.Equals(allowed, origin, StringComparison.OrdinalIgnoreCase)))
+    {
+        return true;
+    }
+
+    if (!Uri.TryCreate(origin, UriKind.Absolute, out var originUri))
+    {
+        return false;
+    }
+
+    var host = originUri.Host;
+
+    return Array.Exists(allowedOriginSuffixes, suffix =>
+    {
+        if (string.IsNullOrWhiteSpace(suffix))
+        {
+            return false;
+        }
+
+        var trimmedSuffix = suffix.Trim();
+        return host.EndsWith(trimmedSuffix, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(host, trimmedSuffix.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
+    });
 }
 
 static string BuildTokenLink(string baseUrl, string token)
